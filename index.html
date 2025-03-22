@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kredit Hesablama</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="theme-color" content="#000000">
+    <script type="application/json" id="manifest-data">
+    {
+      "name": "Kredit Hesablama",
+      "short_name": "Kredit",
+      "start_url": "/",
+      "display": "standalone",
+      "background_color": "#ffffff",
+      "theme_color": "#000000",
+      "icons": [
+        {
+          "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABOSURBVFhH7c6xCQAgDATBE0X//+X+gJCFoBBF0J3MM8A3gMthYAwGxmBgDAYGYMADxuB/4BA8YAwGYAwGxmBgDAbGYGAMBsZgYAwGxmBgDP4BAy4Ed7JvbZQAAAAASUVORK5CYII=",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADSSURBVHhe7dAxAQAwDMCw7v8/XB4QkCAJkiBJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiR5/wF9AQV8Y7Q5xQAAAABJRU5ErkJggg==",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ]
+    }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; margin: 0; padding: 10px; background: #f5f5f5; color: #333; }
+        .container { background: #ffffff; padding: 15px; border-radius: 15px; box-shadow: 0 4px 16px rgba(147, 112, 219, 0.15); max-width: 100%; }
+        .logo { margin-bottom: 10px; text-align: center; font-size: 24px; font-weight: 700; color: #8a2be2; }
+        h2 { font-size: 22px; font-weight: 600; margin-bottom: 15px; text-align: center; color: #8a2be2; }
+        h3 { font-size: 18px; margin-bottom: 10px; color: #666; }
+        select, input, button { display: block; width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 8px; font-size: 14px; }
+        select, input { border: 1px solid #ddd; }
+        button { background: #8a2be2; color: #fff; border: none; cursor: pointer; transition: background 0.3s; }
+        button:hover { background: #6a1bb2; }
+        .dual-container { display: flex; flex-wrap: wrap; gap: 20px; }
+        .dual-section { flex: 1; min-width: 300px; }
+        .info { font-size: 12px; color: #888; margin-bottom: 10px; }
+        .credit-card-container { perspective: 1000px; margin-top: 20px; cursor: pointer; }
+        .credit-card { width: 100%; height: 200px; position: relative; transform-style: preserve-3d; transition: transform 0.6s; }
+        .credit-card.flipped { transform: rotateY(180deg); }
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; padding: 15px; color: #fff; }
+        .card-front { background: linear-gradient(135deg, #8a2be2, #4b0082); z-index: 2; }
+        .card-back { background: linear-gradient(135deg, #6a1bb2, #4b0082); transform: rotateY(180deg); }
+        .card-bank-name { font-size: 18px; font-weight: 600; margin-bottom: 10px; }
+        .card-details { display: flex; flex-direction: column; gap: 8px; }
+        .card-details div { font-size: 14px; }
+        .payment-plan { margin-top: 10px; }
+        .payment-plan table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .payment-plan th, .payment-plan td { padding: 5px; text-align: center; border: 1px solid #ddd; }
+        .comparison-panel { margin-top: 20px; display: none; }
+        .compare-btn, .dual-compare-btn { margin-top: 10px; }
+        @media (max-width: 768px) { 
+            .dual-container { flex-direction: column; } 
+            .credit-card-container { pointer-events: none; } 
+            .logo { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            WTelecome
+        </div>
+        <select id="language" onchange="updateLanguage()">
+            <option value="az">Azərbaycan</option>
+            <option value="en">English</option>
+            <option value="ru">Русский</option>
+        </select>
+        <h2 id="title">Kredit Hesablama</h2>
+
+        <div class="dual-container">
+            <!-- Birinci Ssenari -->
+            <div class="dual-section">
+                <h3>Ssenari 1</h3>
+                <label for="seller1" id="sellerLabel1">Satıcı seçin:</label>
+                <select id="seller1">
+                    <option value="shahmar">Şahmar</option>
+                    <option value="elvin">Elvin</option>
+                    <option value="chinara">Çinarə</option>
+                    <option value="orkhan">Orxan</option>
+                    <option value="mirjamil">Mircəmil</option>
+                    <option value="narmin">Nərmin</option>
+                    <option value="x">X</option>
+                </select>
+                <label for="bank1" id="bankLabel1">Bankı seçin:</label>
+                <select id="bank1" onchange="updateMonths('1')">
+                    <option value="birbank">Birbank</option>
+                    <option value="abb">ABB Bank</option>
+                    <option value="leo">Leo Bank</option>
+                    <option value="bolkart">Bolkart</option>
+                </select>
+                <label for="amount1" id="amountLabel1">Məhsulun dəyəri (AZN):</label>
+                <input type="number" id="amount1" placeholder="100 - 10000 AZN" min="100" max="10000">
+                <label for="initialPayment1" id="initialPaymentLabel1">İlkin ödəniş (AZN):</label>
+                <input type="number" id="initialPayment1" placeholder="0 AZN" min="0">
+                <div class="info" id="serviceFeeInfo1">*Qalan məbləğə xidmət haqqı əlavə olunur</div>
+                <label for="months1" id="monthsLabel1">Neçə ay:</label>
+                <select id="months1">
+                    <option value="3">3 ay</option>
+                    <option value="6">6 ay</option>
+                    <option value="9">9 ay</option>
+                    <option value="12">12 ay</option>
+                    <option value="18">18 ay</option>
+                </select>
+                <button class="calculate-btn" onclick="calculatePayment('1')">Hesabla</button>
+                <button class="dual-compare-btn" onclick="toggleSecondScenario()">İkinci Ssenarini Aktivləşdir</button>
+                <div class="credit-card-container" id="creditCardContainer1" onclick="flipCard('1')">
+                    <div class="credit-card" id="creditCard1">
+                        <div class="card-front">
+                            <div class="card-bank-name" id="cardBankName1">Bank</div>
+                            <div class="card-details">
+                                <div>Aylıq ödəniş: <span id="cardMonthly1">0.00 AZN</span></div>
+                                <div>Ümumi faiz: <span id="cardInterest1">0.00 AZN</span></div>
+                                <div>Ümumi məbləğ: <span id="cardTotal1">0.00 AZN</span></div>
+                            </div>
+                        </div>
+                        <div class="card-back">
+                            <div class="payment-plan" id="paymentPlanContent1"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- İkinci Ssenari -->
+            <div class="dual-section" id="secondScenario" style="display: none;">
+                <h3>Ssenari 2</h3>
+                <label for="seller2" id="sellerLabel2">Satıcı seçin:</label>
+                <select id="seller2">
+                    <option value="shahmar">Şahmar</option>
+                    <option value="elvin">Elvin</option>
+                    <option value="chinara">Çinarə</option>
+                    <option value="orkhan">Orxan</option>
+                    <option value="mirjamil">Mircəmil</option>
+                    <option value="narmin">Nərmin</option>
+                    <option value="x">X</option>
+                </select>
+                <label for="bank2" id="bankLabel2">Bankı seçin:</label>
+                <select id="bank2" onchange="updateMonths('2')">
+                    <option value="birbank">Birbank</option>
+                    <option value="abb">ABB Bank</option>
+                    <option value="leo">Leo Bank</option>
+                    <option value="bolkart">Bolkart</option>
+                </select>
+                <label for="amount2" id="amountLabel2">Məhsulun dəyəri (AZN):</label>
+                <input type="number" id="amount2" placeholder="100 - 10000 AZN" min="100" max="10000">
+                <label for="initialPayment2" id="initialPaymentLabel2">İlkin ödəniş (AZN):</label>
+                <input type="number" id="initialPayment2" placeholder="0 AZN" min="0">
+                <div class="info" id="serviceFeeInfo2">*Qalan məbləğə xidmət haqqı əlavə olunur</div>
+                <label for="months2" id="monthsLabel2">Neçə ay:</label>
+                <select id="months2">
+                    <option value="3">3 ay</option>
+                    <option value="6">6 ay</option>
+                    <option value="9">9 ay</option>
+                    <option value="12">12 ay</option>
+                    <option value="18">18 ay</option>
+                </select>
+                <button class="calculate-btn" onclick="calculatePayment('2')">Hesabla</button>
+                <div class="credit-card-container" id="creditCardContainer2" onclick="flipCard('2')">
+                    <div class="credit-card" id="creditCard2">
+                        <div class="card-front">
+                            <div class="card-bank-name" id="cardBankName2">Bank</div>
+                            <div class="card-details">
+                                <div>Aylıq ödəniş: <span id="cardMonthly2">0.00 AZN</span></div>
+                                <div>Ümumi faiz: <span id="cardInterest2">0.00 AZN</span></div>
+                                <div>Ümumi məbləğ: <span id="cardTotal2">0.00 AZN</span></div>
+                            </div>
+                        </div>
+                        <div class="card-back">
+                            <div class="payment-plan" id="paymentPlanContent2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="compare-btn" id="compareBtn" onclick="compareBanks()">Bütün bankları müqayisə et</button>
+        <button class="dual-compare-btn" onclick="dualCompare()">İkiqat Müqayisə</button>
+        <div class="comparison-panel" id="comparisonPanel">
+            <canvas id="comparisonChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Service Worker qeydiyyatı
+        const swCode = `
+            self.addEventListener('install', (event) => {
+              console.log('Service Worker quraşdırıldı');
+            });
+
+            self.addEventListener('fetch', (event) => {
+              event.respondWith(fetch(event.request));
+            });
+        `;
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl)
+                    .then(reg => console.log('Service Worker qeydiyyatdan keçdi', reg))
+                    .catch(err => console.log('Service Worker qeydiyyatı uğursuz oldu:', err));
+            });
+        }
+
+        // "Ana Ekrana Əlavə Et" təklifi
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const addBtn = document.createElement('button');
+            addBtn.textContent = 'Ana Ekrana Əlavə Et';
+            addBtn.className = 'compare-btn';
+            addBtn.style.marginTop = '20px';
+            document.querySelector('.container').appendChild(addBtn);
+            addBtn.addEventListener('click', () => {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('İstifadəçi tətbiqi əlavə etdi');
+                    }
+                    deferredPrompt = null;
+                    addBtn.style.display = 'none';
+                });
+            });
+        });
+
+        const translations = {
+            az: {
+                title: "Kredit Hesablama",
+                sellerLabel: "Satıcı seçin:",
+                bankLabel: "Bankı seçin:",
+                amountLabel: "Məhsulun dəyəri (AZN):",
+                initialPaymentLabel: "İlkin ödəniş (AZN):",
+                serviceFeeInfo: "*Qalan məbləğə xidmət haqqı əlavə olunur",
+                monthsLabel: "Neçə ay:",
+                calculateBtn: "Hesabla",
+                compareBtn: "Bütün bankları müqayisə et",
+                dualCompareBtn: "İkinci Ssenarini Bağla",
+                paymentPlanHeaders: ["Ay", "Ödəniş", "Qalıq"],
+                comparisonHeaders: ["Bank", "Aylıq Ödəniş", "Ümumi Məbləğ"],
+                error: "Məbləğ 100-10000 AZN olmalıdır!"
+            },
+            en: {
+                title: "Loan Calculator",
+                sellerLabel: "Select Seller:",
+                bankLabel: "Select Bank:",
+                amountLabel: "Product Value (AZN):",
+                initialPaymentLabel: "Initial Payment (AZN):",
+                serviceFeeInfo: "*A service fee is added to the remaining amount",
+                monthsLabel: "Term (months):",
+                calculateBtn: "Calculate",
+                compareBtn: "Compare All Banks",
+                dualCompareBtn: "Close Second Scenario",
+                paymentPlanHeaders: ["Month", "Payment", "Remaining"],
+                comparisonHeaders: ["Bank", "Monthly Payment", "Total Amount"],
+                error: "Amount must be between 100-10000 AZN!"
+            },
+            ru: {
+                title: "Калькулятор кредита",
+                sellerLabel: "Выберите продавца:",
+                bankLabel: "Выберите банк:",
+                amountLabel: "Стоимость товара (AZN):",
+                initialPaymentLabel: "Первоначальный взнос (AZN):",
+                serviceFeeInfo: "*К оставшейся сумме добавляется комиссия",
+                monthsLabel: "Срок (месяцев):",
+                calculateBtn: "Рассчитать",
+                compareBtn: "Сравнить все банки",
+                dualCompareBtn: "Закрыть второй сценарий",
+                paymentPlanHeaders: ["Месяц", "Платеж", "Остаток"],
+                comparisonHeaders: ["Банк", "Ежемесячный платеж", "Общая сумма"],
+                error: "Сумма должна быть от 100 до 10000 AZN!"
+            }
+        };
+
+        const bankNames = {
+            "birbank": "Birbank",
+            "abb": "ABB Bank",
+            "leo": "Leo Bank",
+            "bolkart": "Bolkart"
+        };
+
+        let comparisonChart;
+
+        function updateLanguage() {
+            const lang = document.getElementById("language").value;
+            document.getElementById("title").innerText = translations[lang].title;
+            ['1', '2'].forEach(section => {
+                document.getElementById(`sellerLabel${section}`).innerText = translations[lang].sellerLabel;
+                document.getElementById(`bankLabel${section}`).innerText = translations[lang].bankLabel;
+                document.getElementById(`amountLabel${section}`).innerText = translations[lang].amountLabel;
+                document.getElementById(`initialPaymentLabel${section}`).innerText = translations[lang].initialPaymentLabel;
+                document.getElementById(`serviceFeeInfo${section}`).innerText = translations[lang].serviceFeeInfo;
+                document.getElementById(`monthsLabel${section}`).innerText = translations[lang].monthsLabel;
+            });
+            document.getElementById("compareBtn").innerText = translations[lang].compareBtn;
+            calculatePayment('1');
+            calculatePayment('2');
+        }
+
+        function updateMonths(section) {
+            const bank = document.getElementById(`bank${section}`).value;
+            const monthsSelect = document.getElementById(`months${section}`);
+            monthsSelect.innerHTML = "";
+            const baseOptions = [
+                { value: "3", text: "3" },
+                { value: "6", text: "6" },
+                { value: "9", text: "9" },
+                { value: "12", text: "12" },
+                { value: "18", text: "18" }
+            ];
+            const extraOption = { value: "24", text: "24" };
+            baseOptions.forEach(option => {
+                const opt = document.createElement("option");
+                opt.value = option.value;
+                opt.text = option.text + " " + (translations[document.getElementById("language").value].monthsLabel.split(" ")[1] || "ay");
+                monthsSelect.appendChild(opt);
+            });
+            if (bank === "abb" || bank === "leo" || bank === "bolkart") {
+                const opt = document.createElement("option");
+                opt.value = extraOption.value;
+                opt.text = extraOption.text + " " + (translations[document.getElementById("language").value].monthsLabel.split(" ")[1] || "ay");
+                monthsSelect.appendChild(opt);
+            }
+        }
+
+        function getInterestRate(bank, months, seller) {
+            const rates = {
+                "birbank": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19 },
+                "abb": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19, "24": 0.21 },
+                "leo": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.16, "18": 0.20, "24": 0.23 },
+                "bolkart": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.16, "18": 0.20, "24": 0.23 }
+            };
+
+            let rate = rates[bank][months];
+
+            if (seller === "x") {
+                const xRates = {
+                    "birbank": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19 },
+                    "abb": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19, "24": 0.21 },
+                    "leo": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.15, "18": 0.20, "24": 0.23 },
+                    "bolkart": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.15, "18": 0.20, "24": 0.23 }
+                };
+                rate = xRates[bank][months];
+            } else {
+                if (seller === "chinara") {
+                    rate += 0.02;
+                }
+                if (bank === "bolkart") {
+                    rate += 0.01;
+                }
+                if (bank === "leo") {
+                    rate += 0.015;
+                }
+            }
+            return rate;
+        }
+
+        function calculatePayment(section) {
+            const lang = document.getElementById("language").value;
+            const bank = document.getElementById(`bank${section}`).value;
+            const seller = document.getElementById(`seller${section}`).value;
+            const amount = parseFloat(document.getElementById(`amount${section}`).value) || 0;
+            const initialPayment = parseFloat(document.getElementById(`initialPayment${section}`).value) || 0;
+            const months = parseInt(document.getElementById(`months${section}`).value);
+            const cardMonthly = document.getElementById(`cardMonthly${section}`);
+            const cardInterest = document.getElementById(`cardInterest${section}`);
+            const cardTotal = document.getElementById(`cardTotal${section}`);
+            const cardBankName = document.getElementById(`cardBankName${section}`);
+            const paymentPlanContent = document.getElementById(`paymentPlanContent${section}`);
+
+            if (amount < 100 || amount > 10000 || initialPayment > amount) {
+                cardMonthly.innerText = "Xəta!";
+                cardInterest.innerText = "Xəta!";
+                cardTotal.innerText = initialPayment > amount ? "İlkin ödəniş məbləğdən çox ola bilməz!" : translations[lang].error;
+                cardMonthly.style.color = "#ff4040";
+                cardInterest.style.color = "#ff4040";
+                cardTotal.style.color = "#ff4040";
+                paymentPlanContent.innerHTML = "";
+            } else {
+                const remainingAmount = amount - initialPayment;
+                const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : 30);
+                const amountWithFee = remainingAmount + serviceFee;
+                const interestRate = getInterestRate(bank, months, seller);
+                const totalInterest = amountWithFee * interestRate;
+                const totalAmount = amountWithFee + totalInterest;
+                const monthlyPayment = totalAmount / months;
+
+                cardMonthly.innerText = monthlyPayment.toFixed(2) + " AZN";
+                cardInterest.innerText = totalInterest.toFixed(2) + " AZN";
+                cardTotal.innerText = totalAmount.toFixed(2) + " AZN";
+                cardBankName.innerText = bankNames[bank];
+                cardMonthly.style.color = "#ffffff";
+                cardInterest.style.color = "#ffffff";
+                cardTotal.style.color = "#ffffff";
+
+                let remainingDebt = totalAmount;
+                let tableHTML = `<table><tr><th>${translations[lang].paymentPlanHeaders[0]}</th><th>${translations[lang].paymentPlanHeaders[1]}</th><th>${translations[lang].paymentPlanHeaders[2]}</th></tr>`;
+                for (let i = 1; i <= months; i++) {
+                    remainingDebt -= monthlyPayment;
+                    tableHTML += `<tr><td>${i}</td><td>${monthlyPayment.toFixed(2)} AZN</td><td>${remainingDebt.toFixed(2)} AZN</td></tr>`;
+                }
+                tableHTML += "</table>";
+                paymentPlanContent.innerHTML = tableHTML;
+            }
+        }
+
+        function toggleSecondScenario() {
+            const secondScenario = document.getElementById("secondScenario");
+            const button = document.querySelector(".dual-compare-btn[onclick='toggleSecondScenario()']");
+            if (secondScenario.style.display === "none") {
+                secondScenario.style.display = "block";
+                button.innerText = translations[document.getElementById("language").value].dualCompareBtn;
+            } else {
+                secondScenario.style.display = "none";
+                button.innerText = "İkinci Ssenarini Aktivləşdir";
+            }
+        }
+
+        function flipCard(section) {
+            const card = document.getElementById(`creditCard${section}`);
+            card.classList.toggle('flipped');
+        }
+
+        function compareBanks() {
+            const seller = document.getElementById("seller1").value;
+            const amount = parseFloat(document.getElementById("amount1").value) || 0;
+            const initialPayment = parseFloat(document.getElementById("initialPayment1").value) || 0;
+            const months = parseInt(document.getElementById("months1").value);
+            const lang = document.getElementById("language").value;
+
+            if (amount < 100 || amount > 10000 || initialPayment > amount) {
+                alert(translations[lang].error);
+                return;
+            }
+
+            const remainingAmount = amount - initialPayment;
+            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : 30);
+            const amountWithFee = remainingAmount + serviceFee;
+
+            const banks = ["birbank", "abb", "leo", "bolkart"];
+            const monthlyPayments = [];
+            const totalAmounts = [];
+
+            banks.forEach(bank => {
+                const interestRate = getInterestRate(bank, months, seller);
+                const totalInterest = amountWithFee * interestRate;
+                const totalAmount = amountWithFee + totalInterest;
+                const monthlyPayment = totalAmount / months;
+                monthlyPayments.push(monthlyPayment.toFixed(2));
+                totalAmounts.push(totalAmount.toFixed(2));
+            });
+
+            const ctx = document.getElementById("comparisonChart").getContext("2d");
+            if (comparisonChart) comparisonChart.destroy();
+
+            comparisonChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: banks.map(bank => bankNames[bank]),
+                    datasets: [
+                        { label: translations[lang].comparisonHeaders[1], data: monthlyPayments, backgroundColor: "#8a2be2" },
+                        { label: translations[lang].comparisonHeaders[2], data: totalAmounts, backgroundColor: "#6a1bb2" }
+                    ]
+                },
+                options: { scales: { y: { beginAtZero: true } } }
+            });
+
+            document.getElementById("comparisonPanel").style.display = "block";
+        }
+
+        function dualCompare() {
+            calculatePayment('1');
+            calculatePayment('2');
+            const secondScenario = document.getElementById("secondScenario");
+            if (secondScenario.style.display === "none") toggleSecondScenario();
+        }
+
+        window.addEventListener('load', () => {
+            updateMonths('1');
+            updateMonths('2');
+            updateLanguage();
+        });
+    </script>
+</body>
+</html>
