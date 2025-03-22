@@ -8,27 +8,39 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <meta name="theme-color" content="#000000">
+    <!-- Manifest məlumatlarını daxili olaraq təyin etmək üçün skript -->
     <script type="application/json" id="manifest-data">
     {
       "name": "Kredit Hesablama",
       "short_name": "Kredit",
-      "start_url": "/",
+      "start_url": "/WTelecome/",
       "display": "standalone",
       "background_color": "#ffffff",
       "theme_color": "#000000",
       "icons": [
         {
-          "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABOSURBVFhH7c6xCQAgDATBE0X//+X+gJCFoBBF0J3MM8A3gMthYAwGxmBgDAYGYMADxuB/4BA8YAwGYAwGxmBgDAbGYGAMBsZgYAwGxmBgDP4BAy4Ed7JvbZQAAAAASUVORK5CYII=",
+          "src": "/WTelecome/icon-192x192.png",
           "sizes": "192x192",
           "type": "image/png"
         },
         {
-          "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADSSURBVHhe7dAxAQAwDMCw7v8/XB4QkCAJkiBJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiR5/wF9AQV8Y7Q5xQAAAABJRU5ErkJggg==",
+          "src": "/WTelecome/icon-512x512.png",
           "sizes": "512x512",
           "type": "image/png"
         }
       ]
     }
+    </script>
+    <!-- Manifest məlumatlarını brauzerə tanıtmaq üçün -->
+    <script>
+      // Manifest məlumatlarını dinamik olaraq brauzerə təqdim edirik
+      const manifestData = document.getElementById('manifest-data').textContent;
+      const manifestBlob = new Blob([manifestData], { type: 'application/json' });
+      const manifestURL = URL.createObjectURL(manifestBlob);
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = manifestURL;
+      document.head.appendChild(link);
     </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -489,5 +501,5 @@
             updateLanguage();
         });
     </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'92443bb9dd107bb8',t:'MTc0MjYzMTI0My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
