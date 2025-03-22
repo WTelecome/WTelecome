@@ -8,40 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <meta name="theme-color" content="#000000">
-    <!-- Manifest məlumatlarını daxili olaraq təyin etmək üçün skript -->
-    <script type="application/json" id="manifest-data">
-    {
-      "name": "Kredit Hesablama",
-      "short_name": "Kredit",
-      "start_url": "/WTelecome/",
-      "display": "standalone",
-      "background_color": "#ffffff",
-      "theme_color": "#000000",
-      "icons": [
-        {
-          "src": "/WTelecome/icon-192x192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        },
-        {
-          "src": "/WTelecome/icon-512x512.png",
-          "sizes": "512x512",
-          "type": "image/png"
-        }
-      ]
-    }
-    </script>
-    <!-- Manifest məlumatlarını brauzerə tanıtmaq üçün -->
-    <script>
-      // Manifest məlumatlarını dinamik olaraq brauzerə təqdim edirik
-      const manifestData = document.getElementById('manifest-data').textContent;
-      const manifestBlob = new Blob([manifestData], { type: 'application/json' });
-      const manifestURL = URL.createObjectURL(manifestBlob);
-      const link = document.createElement('link');
-      link.rel = 'manifest';
-      link.href = manifestURL;
-      document.head.appendChild(link);
-    </script>
+    <!-- Manifest faylına istinad -->
+    <link rel="manifest" href="/WTelecome/manifest.json">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Montserrat', sans-serif; margin: 0; padding: 10px; background: #f5f5f5; color: #333; }
