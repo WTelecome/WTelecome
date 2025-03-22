@@ -59,7 +59,7 @@
         <div class="dual-container">
             <!-- Birinci Ssenari -->
             <div class="dual-section">
-                <h3>Ssenari 1</h3>
+                <h3>Hesabat 1</h3>
                 <label for="seller1" id="sellerLabel1">Satıcı seçin:</label>
                 <select id="seller1">
                     <option value="shahmar">Şahmar</option>
@@ -91,8 +91,8 @@
                     <option value="12">12 ay</option>
                     <option value="18">18 ay</option>
                 </select>
-                <button class="calculate-btn" onclick="calculatePayment('1')">Hesabla</button>
-                <button class="dual-compare-btn" onclick="toggleSecondScenario()">İkinci Ssenarini Aktivləşdir</button>
+                <button id="calculateBtn1" class="calculate-btn" onclick="calculatePayment('1')">Hesabla</button>
+                <button id="toggleScenarioBtn" class="dual-compare-btn" onclick="toggleSecondScenario()">İkinci Ssenarini Aktivləşdir</button>
                 <div class="credit-card-container" id="creditCardContainer1" onclick="flipCard('1')">
                     <div class="credit-card" id="creditCard1">
                         <div class="card-front">
@@ -112,7 +112,7 @@
 
             <!-- İkinci Ssenari -->
             <div class="dual-section" id="secondScenario" style="display: none;">
-                <h3>Ssenari 2</h3>
+                <h3>Hesabat 2</h3>
                 <label for="seller2" id="sellerLabel2">Satıcı seçin:</label>
                 <select id="seller2">
                     <option value="shahmar">Şahmar</option>
@@ -144,7 +144,7 @@
                     <option value="12">12 ay</option>
                     <option value="18">18 ay</option>
                 </select>
-                <button class="calculate-btn" onclick="calculatePayment('2')">Hesabla</button>
+                <button id="calculateBtn2" class="calculate-btn" onclick="calculatePayment('2')">Hesabla</button>
                 <div class="credit-card-container" id="creditCardContainer2" onclick="flipCard('2')">
                     <div class="credit-card" id="creditCard2">
                         <div class="card-front">
@@ -223,6 +223,7 @@
                 calculateBtn: "Hesabla",
                 compareBtn: "Bütün bankları müqayisə et",
                 dualCompareBtn: "İkinci Ssenarini Bağla",
+                toggleScenarioBtn: "İkinci Ssenarini Aktivləşdir",
                 paymentPlanHeaders: ["Ay", "Ödəniş", "Qalıq"],
                 comparisonHeaders: ["Bank", "Aylıq Ödəniş", "Ümumi Məbləğ"],
                 error: "Məbləğ 100-10000 AZN olmalıdır!"
@@ -238,6 +239,7 @@
                 calculateBtn: "Calculate",
                 compareBtn: "Compare All Banks",
                 dualCompareBtn: "Close Second Scenario",
+                toggleScenarioBtn: "Activate Second Scenario",
                 paymentPlanHeaders: ["Month", "Payment", "Remaining"],
                 comparisonHeaders: ["Bank", "Monthly Payment", "Total Amount"],
                 error: "Amount must be between 100-10000 AZN!"
@@ -253,6 +255,7 @@
                 calculateBtn: "Рассчитать",
                 compareBtn: "Сравнить все банки",
                 dualCompareBtn: "Закрыть второй сценарий",
+                toggleScenarioBtn: "Активировать второй сценарий",
                 paymentPlanHeaders: ["Месяц", "Платеж", "Остаток"],
                 comparisonHeaders: ["Банк", "Ежемесячный платеж", "Общая сумма"],
                 error: "Сумма должна быть от 100 до 10000 AZN!"
@@ -279,8 +282,10 @@
                 document.getElementById(`initialPaymentLabel${section}`).innerText = translations[lang].initialPaymentLabel;
                 document.getElementById(`serviceFeeInfo${section}`).innerText = translations[lang].serviceFeeInfo;
                 document.getElementById(`monthsLabel${section}`).innerText = translations[lang].monthsLabel;
+                document.getElementById(`calculateBtn${section}`).innerText = translations[lang].calculateBtn;
             });
             document.getElementById("compareBtn").innerText = translations[lang].compareBtn;
+            document.getElementById("toggleScenarioBtn").innerText = translations[lang].toggleScenarioBtn;
             calculatePayment('1');
             calculatePayment('2');
         }
@@ -419,13 +424,14 @@
 
         function toggleSecondScenario() {
             const secondScenario = document.getElementById("secondScenario");
-            const button = document.querySelector(".dual-compare-btn[onclick='toggleSecondScenario()']");
+            const button = document.getElementById("toggleScenarioBtn");
+            const lang = document.getElementById("language").value;
             if (secondScenario.style.display === "none") {
                 secondScenario.style.display = "block";
-                button.innerText = translations[document.getElementById("language").value].dualCompareBtn;
+                button.innerText = translations[lang].dualCompareBtn;
             } else {
                 secondScenario.style.display = "none";
-                button.innerText = "İkinci Ssenarini Aktivləşdir";
+                button.innerText = translations[lang].toggleScenarioBtn;
             }
         }
 
