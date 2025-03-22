@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <meta name="theme-color" content="#000000">
-    <!-- Manifest faylına istinad -->
     <link rel="manifest" href="/WTelecome/manifest.json">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -77,6 +76,7 @@
                     <option value="abb">ABB Bank</option>
                     <option value="leo">Leo Bank</option>
                     <option value="bolkart">Bolkart</option>
+                    <option value="umumi">Ümumi Bank</option>
                 </select>
                 <label for="amount1" id="amountLabel1">Məhsulun dəyəri (AZN):</label>
                 <input type="number" id="amount1" placeholder="100 - 10000 AZN" min="100" max="10000">
@@ -129,6 +129,7 @@
                     <option value="abb">ABB Bank</option>
                     <option value="leo">Leo Bank</option>
                     <option value="bolkart">Bolkart</option>
+                    <option value="umumi">Ümumi Bank</option>
                 </select>
                 <label for="amount2" id="amountLabel2">Məhsulun dəyəri (AZN):</label>
                 <input type="number" id="amount2" placeholder="100 - 10000 AZN" min="100" max="10000">
@@ -170,7 +171,6 @@
     </div>
 
     <script>
-        // Service Worker qeydiyyatı
         const swCode = `
             self.addEventListener('install', (event) => {
               console.log('Service Worker quraşdırıldı');
@@ -190,7 +190,6 @@
             });
         }
 
-        // "Ana Ekrana Əlavə Et" təklifi
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -264,7 +263,8 @@
             "birbank": "Birbank",
             "abb": "ABB Bank",
             "leo": "Leo Bank",
-            "bolkart": "Bolkart"
+            "bolkart": "Bolkart",
+            "umumi": "Ümumi Bank"
         };
 
         let comparisonChart;
@@ -289,39 +289,55 @@
             const bank = document.getElementById(`bank${section}`).value;
             const monthsSelect = document.getElementById(`months${section}`);
             monthsSelect.innerHTML = "";
-            const baseOptions = [
-                { value: "3", text: "3" },
-                { value: "6", text: "6" },
-                { value: "9", text: "9" },
-                { value: "12", text: "12" },
-                { value: "18", text: "18" }
-            ];
-            const extraOption = { value: "24", text: "24" };
-            baseOptions.forEach(option => {
+            
+            if (bank === "umumi") {
                 const opt = document.createElement("option");
-                opt.value = option.value;
-                opt.text = option.text + " " + (translations[document.getElementById("language").value].monthsLabel.split(" ")[1] || "ay");
+                opt.value = "full";
+                opt.text = "Tam Ödəniş";
                 monthsSelect.appendChild(opt);
-            });
-            if (bank === "abb" || bank === "leo" || bank === "bolkart") {
-                const opt = document.createElement("option");
-                opt.value = extraOption.value;
-                opt.text = extraOption.text + " " + (translations[document.getElementById("language").value].monthsLabel.split(" ")[1] || "ay");
-                monthsSelect.appendChild(opt);
+            } else {
+                const baseOptions = [
+                    { value: "3", text: "3" },
+                    { value: "6", text: "6" },
+                    { value: "9", text: "9" },
+                    { value: "12", text: "12" },
+                    { value: "18", text: "18" }
+                ];
+                const extraOption = { value: "24", text: "24" };
+                baseOptions.forEach(option => {
+                    const opt = document.createElement("option");
+                    opt.value = option.value;
+                    opt.text = option.text + " " + (translations[document.getElementById("language").value].monthsLabel.split(" ")[1] || "ay");
+                    monthsSelect.appendChild(opt);
+                });
+                if (bank === "abb" || bank === "leo" || bank === "bolkart") {
+                    const opt = document.createElement("option");
+                    opt.value = extraOption.value;
+                    opt.text = extraOption.text + " " + (translations[document.getElementById("language").value].monthsLabel.split(" ")[1] || "ay");
+                    monthsSelect.appendChild(opt);
+                }
             }
         }
 
-        function getInterestRate(bank, months, seller) {
+        function getInterestRate(bank, months, seller, amount) {
             const rates = {
                 "birbank": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19 },
                 "abb": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19, "24": 0.21 },
                 "leo": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.16, "18": 0.20, "24": 0.23 },
-                "bolkart": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.16, "18": 0.20, "24": 0.23 }
+                "bolkart": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.16, "18": 0.20, "24": 0.23 },
+                "umumi": { "full": 0 }
             };
 
             let rate = rates[bank][months];
 
-            if (seller === "x") {
+            if (bank === "umumi") {
+                if (amount <= 500) rate = 0.12;
+                else if (amount <= 1000) rate = 0.10;
+                else if (amount <= 1500) rate = 0.09;
+                else if (amount <= 2000) rate = 0.08;
+                else if (amount <= 3000) rate = 0.07;
+                else rate = 0.07;
+            } else if (seller === "x") {
                 const xRates = {
                     "birbank": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19 },
                     "abb": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19, "24": 0.21 },
@@ -349,7 +365,7 @@
             const seller = document.getElementById(`seller${section}`).value;
             const amount = parseFloat(document.getElementById(`amount${section}`).value) || 0;
             const initialPayment = parseFloat(document.getElementById(`initialPayment${section}`).value) || 0;
-            const months = parseInt(document.getElementById(`months${section}`).value);
+            const months = document.getElementById(`months${section}`).value === "full" ? "full" : parseInt(document.getElementById(`months${section}`).value);
             const cardMonthly = document.getElementById(`cardMonthly${section}`);
             const cardInterest = document.getElementById(`cardInterest${section}`);
             const cardTotal = document.getElementById(`cardTotal${section}`);
@@ -368,27 +384,36 @@
                 const remainingAmount = amount - initialPayment;
                 const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : 30);
                 const amountWithFee = remainingAmount + serviceFee;
-                const interestRate = getInterestRate(bank, months, seller);
+                const interestRate = getInterestRate(bank, months, seller, amount);
                 const totalInterest = amountWithFee * interestRate;
-                const totalAmount = amountWithFee + totalInterest;
-                const monthlyPayment = totalAmount / months;
+                let totalAmount = amountWithFee + totalInterest;
 
-                cardMonthly.innerText = monthlyPayment.toFixed(2) + " AZN";
-                cardInterest.innerText = totalInterest.toFixed(2) + " AZN";
-                cardTotal.innerText = totalAmount.toFixed(2) + " AZN";
                 cardBankName.innerText = bankNames[bank];
                 cardMonthly.style.color = "#ffffff";
                 cardInterest.style.color = "#ffffff";
                 cardTotal.style.color = "#ffffff";
 
-                let remainingDebt = totalAmount;
-                let tableHTML = `<table><tr><th>${translations[lang].paymentPlanHeaders[0]}</th><th>${translations[lang].paymentPlanHeaders[1]}</th><th>${translations[lang].paymentPlanHeaders[2]}</th></tr>`;
-                for (let i = 1; i <= months; i++) {
-                    remainingDebt -= monthlyPayment;
-                    tableHTML += `<tr><td>${i}</td><td>${monthlyPayment.toFixed(2)} AZN</td><td>${remainingDebt.toFixed(2)} AZN</td></tr>`;
+                if (bank === "umumi") {
+                    totalAmount = Math.round(totalAmount / 10) * 10;
+                    cardMonthly.innerText = "Tam Ödəniş";
+                    cardInterest.innerText = totalInterest.toFixed(2) + " AZN";
+                    cardTotal.innerText = totalAmount.toFixed(2) + " AZN";
+                    paymentPlanContent.innerHTML = `<p>Tam Ödəniş: ${totalAmount.toFixed(2)} AZN</p>`;
+                } else {
+                    const monthlyPayment = totalAmount / months;
+                    cardMonthly.innerText = monthlyPayment.toFixed(2) + " AZN";
+                    cardInterest.innerText = totalInterest.toFixed(2) + " AZN";
+                    cardTotal.innerText = totalAmount.toFixed(2) + " AZN";
+
+                    let remainingDebt = totalAmount;
+                    let tableHTML = `<table><tr><th>${translations[lang].paymentPlanHeaders[0]}</th><th>${translations[lang].paymentPlanHeaders[1]}</th><th>${translations[lang].paymentPlanHeaders[2]}</th></tr>`;
+                    for (let i = 1; i <= months; i++) {
+                        remainingDebt -= monthlyPayment;
+                        tableHTML += `<tr><td>${i}</td><td>${monthlyPayment.toFixed(2)} AZN</td><td>${remainingDebt.toFixed(2)} AZN</td></tr>`;
+                    }
+                    tableHTML += "</table>";
+                    paymentPlanContent.innerHTML = tableHTML;
                 }
-                tableHTML += "</table>";
-                paymentPlanContent.innerHTML = tableHTML;
             }
         }
 
@@ -413,7 +438,7 @@
             const seller = document.getElementById("seller1").value;
             const amount = parseFloat(document.getElementById("amount1").value) || 0;
             const initialPayment = parseFloat(document.getElementById("initialPayment1").value) || 0;
-            const months = parseInt(document.getElementById("months1").value);
+            const months = document.getElementById("months1").value === "full" ? "full" : parseInt(document.getElementById("months1").value);
             const lang = document.getElementById("language").value;
 
             if (amount < 100 || amount > 10000 || initialPayment > amount) {
@@ -425,15 +450,16 @@
             const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : 30);
             const amountWithFee = remainingAmount + serviceFee;
 
-            const banks = ["birbank", "abb", "leo", "bolkart"];
+            const banks = ["birbank", "abb", "leo", "bolkart", "umumi"];
             const monthlyPayments = [];
             const totalAmounts = [];
 
             banks.forEach(bank => {
-                const interestRate = getInterestRate(bank, months, seller);
+                const interestRate = getInterestRate(bank, months, seller, amount);
                 const totalInterest = amountWithFee * interestRate;
-                const totalAmount = amountWithFee + totalInterest;
-                const monthlyPayment = totalAmount / months;
+                let totalAmount = amountWithFee + totalInterest;
+                if (bank === "umumi") totalAmount = Math.round(totalAmount / 10) * 10;
+                const monthlyPayment = (bank === "umumi") ? totalAmount : totalAmount / months;
                 monthlyPayments.push(monthlyPayment.toFixed(2));
                 totalAmounts.push(totalAmount.toFixed(2));
             });
@@ -469,5 +495,5 @@
             updateLanguage();
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'92443bb9dd107bb8',t:'MTc0MjYzMTI0My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
