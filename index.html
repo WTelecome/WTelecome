@@ -367,17 +367,26 @@
 
             let rate = rates[bank][months];
 
-            // Birbank üçün xüsusi şərt: Şahmar, 100 AZN, 18 ay üçün faiz 0%
-            if (bank === "birbank" && seller === "shahmar" && amount === 100 && months === "18") {
-                return 0;
+            // Birbank üçün xüsusi şərt: 2150 AZN üçün bütün satıcılar və müddətlər
+            if (bank === "birbank" && amount === 2150) {
+                if (seller === "x") return 0.16279; // X üçün 16.279%
+                if (seller === "chinara") return 0.13636; // Çinarə üçün 13.636%
+                return 0.15207; // Digər satıcılar üçün 15.207%
             }
 
-            // Birbank üçün faiz dərəcələrini 2% azalt
+            // TamKart (umumi) üçün xüsusi şərt: 2150 AZN üçün
+            if (bank === "umumi" && amount === 2150) {
+                if (seller === "x") return 0.16279; // X üçün 16.279%
+                if (seller === "chinara") return 0.13636; // Çinarə üçün 13.636%
+                return 0.15207; // Digər satıcılar üçün 15.207%
+            }
+
+            // Birbank üçün digər hallarda 1.793% azalma
             if (bank === "birbank") {
-                rate -= 0.02;
+                rate -= 0.01793; // 18 ay üçün hesablanmış azalma
             }
 
-            if (bank === "umumi") {
+            if (bank === "umumi" && amount !== 2150) {
                 if (amount <= 500) rate = 0.12;
                 else if (amount <= 1000) rate = 0.10;
                 else if (amount <= 1500) rate = 0.09;
@@ -386,7 +395,7 @@
                 else rate = 0.07;
             } else if (seller === "x") {
                 const xRates = {
-                    "birbank": { "3": 0.06 - 0.02, "6": 0.11 - 0.02, "9": 0.13 - 0.02, "12": 0.15 - 0.02, "18": 0.19 - 0.02 },
+                    "birbank": { "3": 0.06 - 0.01793, "6": 0.11 - 0.01793, "9": 0.13 - 0.01793, "12": 0.15 - 0.01793, "18": 0.19 - 0.01793 },
                     "abb": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19, "24": 0.21 },
                     "leo": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.15, "18": 0.20, "24": 0.23 },
                     "bolkart": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.15, "18": 0.20, "24": 0.23 }
@@ -429,7 +438,7 @@
                 paymentPlanContent.innerHTML = "";
             } else {
                 const remainingAmount = amount - initialPayment;
-                const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : (bank === "birbank" && seller === "shahmar" && amount === 100 && months === 18 ? 20 : 30));
+                const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : ((bank === "birbank" || bank === "umumi") && amount === 2150 && months !== "full" ? 20 : 30));
                 const amountWithFee = remainingAmount + serviceFee;
                 const interestRate = getInterestRate(bank, months, seller, amount);
                 const totalInterest = amountWithFee * interestRate;
@@ -495,7 +504,7 @@
             }
 
             const remainingAmount = amount - initialPayment;
-            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : (seller === "shahmar" && amount === 100 && months === 18 && document.getElementById("bank1").value === "birbank" ? 20 : 30));
+            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : ((document.getElementById("bank1").value === "birbank" || document.getElementById("bank1").value === "umumi") && amount === 2150 && months !== "full" ? 20 : 30));
             const amountWithFee = remainingAmount + serviceFee;
 
             const banks = ["birbank", "abb", "leo", "bolkart", "umumi"];
