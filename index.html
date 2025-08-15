@@ -37,6 +37,20 @@
         .payment-plan th, .payment-plan td { padding: 5px; text-align: center; border: 1px solid #ddd; }
         .comparison-panel { margin-top: 20px; display: none; }
         .compare-btn, .dual-compare-btn { margin-top: 10px; }
+        /* Tünd rejim stilləri */
+        body.dark-mode { background: #1a1a1a; color: #e0e0e0; }
+        body.dark-mode .container { background: #2c2c2c; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); }
+        body.dark-mode select, body.dark-mode input { background: #333; color: #e0e0e0; border: 1px solid #555; }
+        body.dark-mode button { background: #6a1bb2; }
+        body.dark-mode button:hover { background: #8a2be2; }
+        body.dark-mode .info { color: #aaa; }
+        body.dark-mode .card-front { background: linear-gradient(135deg, #4b0082, #2c2c2c); }
+        body.dark-mode .card-back { background: linear-gradient(135deg, #6a1bb2, #2c2c2c); }
+        body.dark-mode .payment-plan th, body.dark-mode .payment-plan td { border: 1px solid #555; color: #e0e0e0; }
+        body.dark-mode .logo { color: #b19cd9; }
+        body.dark-mode h2, body.dark-mode h3 { color: #b19cd9; }
+        body.dark-mode #themeToggle i::before { content: "\f185"; }
+        body.dark-mode #themeToggle { background: #8a2be2; }
         @media (max-width: 768px) { 
             .dual-container { flex-direction: column; } 
             .credit-card-container { pointer-events: none; } 
@@ -46,14 +60,13 @@
 </head>
 <body>
     <div class="container">
-        <div class="logo">
-            WTelecome
-        </div>
+        <div class="logo">WTelecome</div>
         <select id="language" onchange="updateLanguage()">
             <option value="az">Azərbaycan</option>
             <option value="en">English</option>
             <option value="ru">Русский</option>
         </select>
+        <button id="themeToggle" class="compare-btn"><i class="fas fa-moon"></i> Tünd Rejim</button>
         <h2 id="title">Kredit Hesablama</h2>
 
         <div class="dual-container">
@@ -226,7 +239,9 @@
                 toggleScenarioBtn: "İkinci Ssenarini Aktivləşdir",
                 paymentPlanHeaders: ["Ay", "Ödəniş", "Qalıq"],
                 comparisonHeaders: ["Bank", "Aylıq Ödəniş", "Ümumi Məbləğ"],
-                error: "Məbləğ 100-10000 AZN olmalıdır!"
+                error: "Məbləğ 100-10000 AZN olmalıdır!",
+                themeToggle: "Tünd Rejim",
+                themeToggleLight: "Aydın Rejim"
             },
             en: {
                 title: "Loan Calculator",
@@ -242,7 +257,9 @@
                 toggleScenarioBtn: "Activate Second Scenario",
                 paymentPlanHeaders: ["Month", "Payment", "Remaining"],
                 comparisonHeaders: ["Bank", "Monthly Payment", "Total Amount"],
-                error: "Amount must be between 100-10000 AZN!"
+                error: "Amount must be between 100-10000 AZN!",
+                themeToggle: "Dark Mode",
+                themeToggleLight: "Light Mode"
             },
             ru: {
                 title: "Калькулятор кредита",
@@ -258,7 +275,9 @@
                 toggleScenarioBtn: "Активировать второй сценарий",
                 paymentPlanHeaders: ["Месяц", "Платеж", "Остаток"],
                 comparisonHeaders: ["Банк", "Ежемесячный платеж", "Общая сумма"],
-                error: "Сумма должна быть от 100 до 10000 AZN!"
+                error: "Сумма должна быть от 100 до 10000 AZN!",
+                themeToggle: "Тёмный режим",
+                themeToggleLight: "Светлый режим"
             }
         };
 
@@ -286,8 +305,21 @@
             });
             document.getElementById("compareBtn").innerText = translations[lang].compareBtn;
             document.getElementById("toggleScenarioBtn").innerText = translations[lang].toggleScenarioBtn;
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            document.getElementById("themeToggle").innerHTML = isDarkMode 
+                ? `<i class="fas fa-sun"></i> ${translations[lang].themeToggleLight}`
+                : `<i class="fas fa-moon"></i> ${translations[lang].themeToggle}`;
             calculatePayment('1');
             calculatePayment('2');
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            document.getElementById('themeToggle').innerHTML = isDarkMode 
+                ? `<i class="fas fa-sun"></i> ${translations[document.getElementById("language").value].themeToggleLight}`
+                : `<i class="fas fa-moon"></i> ${translations[document.getElementById("language").value].themeToggle}`;
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
         }
 
         function updateMonths(section) {
@@ -335,22 +367,28 @@
 
             let rate = rates[bank][months];
 
+            // Şahmar üçün xüsusi şərt: 100 AZN, 18 ay, ümumi 120 AZN üçün faiz 0%
+            if (seller === "shahmar" && amount === 100 && months === "18") {
+                return 0;
+            }
+
             if (bank === "umumi") {
-                if (amount <= 500) rate = 0.12;
-                else if (amount <= 1000) rate = 0.10;
-                else if (amount <= 1500) rate = 0.09;
-                else if (amount <= 2000) rate = 0.08;
-                else if (amount <= 3000) rate = 0.07;
-                else rate = 0.07;
+                if (amount <= 500) rate = 0.12 - 0.03;
+                else if (amount <= 1000) rate = 0.10 - 0.03;
+                else if (amount <= 1500) rate = 0.09 - 0.03;
+                else if (amount <= 2000) rate = 0.08 - 0.03;
+                else if (amount <= 3000) rate = 0.07 - 0.03;
+                else rate = 0.07 - 0.03;
             } else if (seller === "x") {
                 const xRates = {
-                    "birbank": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19 },
-                    "abb": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19, "24": 0.21 },
-                    "leo": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.15, "18": 0.20, "24": 0.23 },
-                    "bolkart": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.15, "18": 0.20, "24": 0.23 }
+                    "birbank": { "3": 0.06 - 0.02, "6": 0.11 - 0.02, "9": 0.13 - 0.02, "12": 0.15 - 0.02, "18": 0.19 - 0.02 },
+                    "abb": { "3": 0.06 - 0.02, "6": 0.11 - 0.02, "9": 0.13 - 0.02, "12": 0.15 - 0.02, "18": 0.19 - 0.02, "24": 0.21 - 0.02 },
+                    "leo": { "3": 0.07 - 0.02, "6": 0.12 - 0.02, "9": 0.14 - 0.02, "12": 0.15 - 0.02, "18": 0.20 - 0.02, "24": 0.23 - 0.02 },
+                    "bolkart": { "3": 0.07 - 0.02, "6": 0.12 - 0.02, "9": 0.14 - 0.02, "12": 0.15 - 0.02, "18": 0.20 - 0.02, "24": 0.23 - 0.02 }
                 };
                 rate = xRates[bank][months];
             } else {
+                rate = rates[bank][months] - 0.02;
                 if (seller === "chinara") {
                     rate += 0.02;
                 }
@@ -361,7 +399,7 @@
                     rate += 0.015;
                 }
             }
-            return rate;
+            return Math.max(rate, 0);
         }
 
         function calculatePayment(section) {
@@ -387,7 +425,7 @@
                 paymentPlanContent.innerHTML = "";
             } else {
                 const remainingAmount = amount - initialPayment;
-                const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : 30);
+                const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : (seller === "shahmar" && amount === 100 && months === 18 ? 20 : 30));
                 const amountWithFee = remainingAmount + serviceFee;
                 const interestRate = getInterestRate(bank, months, seller, amount);
                 const totalInterest = amountWithFee * interestRate;
@@ -453,7 +491,7 @@
             }
 
             const remainingAmount = amount - initialPayment;
-            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : 30);
+            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : (seller === "shahmar" && amount === 100 && months === 18 ? 20 : 30));
             const amountWithFee = remainingAmount + serviceFee;
 
             const banks = ["birbank", "abb", "leo", "bolkart", "umumi"];
@@ -496,9 +534,15 @@
         }
 
         window.addEventListener('load', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeToggle').innerHTML = `<i class="fas fa-sun"></i> ${translations[document.getElementById("language").value].themeToggleLight}`;
+            }
             updateMonths('1');
             updateMonths('2');
             updateLanguage();
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
         });
     </script>
 </body>
