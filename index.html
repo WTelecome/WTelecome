@@ -25,7 +25,7 @@
         .info { font-size: 12px; color: #888; margin-bottom: 10px; }
         .credit-card-container { perspective: 1000px; margin-top: 20px; cursor: pointer; }
         .credit-card { width: 100%; height: 200px; position: relative; transform-style: preserve-3d; transition: transform 0.6s; }
-        .credit-card.flipped { transform: rotateY(180deg); }
+        .credit-card.flipped { transform: rotateY: 180deg; }
         .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; padding: 15px; color: #fff; }
         .card-front { background: linear-gradient(135deg, #8a2be2, #4b0082); z-index: 2; }
         .card-back { background: linear-gradient(135deg, #6a1bb2, #4b0082); transform: rotateY(180deg); }
@@ -367,28 +367,32 @@
 
             let rate = rates[bank][months];
 
-            // Şahmar üçün xüsusi şərt: 100 AZN, 18 ay, ümumi 120 AZN üçün faiz 0%
-            if (seller === "shahmar" && amount === 100 && months === "18") {
+            // Birbank üçün xüsusi şərt: Şahmar, 100 AZN, 18 ay üçün faiz 0%
+            if (bank === "birbank" && seller === "shahmar" && amount === 100 && months === "18") {
                 return 0;
             }
 
+            // Birbank üçün faiz dərəcələrini 2% azalt
+            if (bank === "birbank") {
+                rate -= 0.02;
+            }
+
             if (bank === "umumi") {
-                if (amount <= 500) rate = 0.12 - 0.03;
-                else if (amount <= 1000) rate = 0.10 - 0.03;
-                else if (amount <= 1500) rate = 0.09 - 0.03;
-                else if (amount <= 2000) rate = 0.08 - 0.03;
-                else if (amount <= 3000) rate = 0.07 - 0.03;
-                else rate = 0.07 - 0.03;
+                if (amount <= 500) rate = 0.12;
+                else if (amount <= 1000) rate = 0.10;
+                else if (amount <= 1500) rate = 0.09;
+                else if (amount <= 2000) rate = 0.08;
+                else if (amount <= 3000) rate = 0.07;
+                else rate = 0.07;
             } else if (seller === "x") {
                 const xRates = {
                     "birbank": { "3": 0.06 - 0.02, "6": 0.11 - 0.02, "9": 0.13 - 0.02, "12": 0.15 - 0.02, "18": 0.19 - 0.02 },
-                    "abb": { "3": 0.06 - 0.02, "6": 0.11 - 0.02, "9": 0.13 - 0.02, "12": 0.15 - 0.02, "18": 0.19 - 0.02, "24": 0.21 - 0.02 },
-                    "leo": { "3": 0.07 - 0.02, "6": 0.12 - 0.02, "9": 0.14 - 0.02, "12": 0.15 - 0.02, "18": 0.20 - 0.02, "24": 0.23 - 0.02 },
-                    "bolkart": { "3": 0.07 - 0.02, "6": 0.12 - 0.02, "9": 0.14 - 0.02, "12": 0.15 - 0.02, "18": 0.20 - 0.02, "24": 0.23 - 0.02 }
+                    "abb": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19, "24": 0.21 },
+                    "leo": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.15, "18": 0.20, "24": 0.23 },
+                    "bolkart": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.15, "18": 0.20, "24": 0.23 }
                 };
                 rate = xRates[bank][months];
             } else {
-                rate = rates[bank][months] - 0.02;
                 if (seller === "chinara") {
                     rate += 0.02;
                 }
@@ -425,7 +429,7 @@
                 paymentPlanContent.innerHTML = "";
             } else {
                 const remainingAmount = amount - initialPayment;
-                const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : (seller === "shahmar" && amount === 100 && months === 18 ? 20 : 30));
+                const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : (bank === "birbank" && seller === "shahmar" && amount === 100 && months === 18 ? 20 : 30));
                 const amountWithFee = remainingAmount + serviceFee;
                 const interestRate = getInterestRate(bank, months, seller, amount);
                 const totalInterest = amountWithFee * interestRate;
@@ -491,7 +495,7 @@
             }
 
             const remainingAmount = amount - initialPayment;
-            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : (seller === "shahmar" && amount === 100 && months === 18 ? 20 : 30));
+            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : (seller === "shahmar" && amount === 100 && months === 18 && document.getElementById("bank1").value === "birbank" ? 20 : 30));
             const amountWithFee = remainingAmount + serviceFee;
 
             const banks = ["birbank", "abb", "leo", "bolkart", "umumi"];
