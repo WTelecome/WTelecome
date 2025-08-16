@@ -51,6 +51,11 @@
         body.dark-mode h2, body.dark-mode h3 { color: #b19cd9; }
         body.dark-mode #themeToggle i::before { content: "\f185"; }
         body.dark-mode #themeToggle { background: #8a2be2; }
+        /* Şahmar üçün xüsusi kart rəngi */
+        .card-front.shahmar { background: linear-gradient(135deg, #28a745, #1e7e34); }
+        .card-back.shahmar { background: linear-gradient(135deg, #218838, #1e7e34); }
+        body.dark-mode .card-front.shahmar { background: linear-gradient(135deg, #1e7e34, #2c2c2c); }
+        body.dark-mode .card-back.shahmar { background: linear-gradient(135deg, #218838, #2c2c2c); }
         @media (max-width: 768px) { 
             .dual-container { flex-direction: column; } 
             .credit-card-container { pointer-events: none; } 
@@ -357,10 +362,10 @@
             }
         }
 
-        function getInterestRate(bank, months, seller, amount) {
+        function getInterestRate(bank, months, seller, amount, section) {
             const rates = {
-                "birbank": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19 },
-                "abb": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19, "24": 0.21 },
+                "birbank": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.16 },
+                "abb": { "3": 0.05, "6": 0.07, "9": 0.08, "12": 0.09, "18": 0.12, "24": 0.15 },
                 "leo": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.16, "18": 0.20, "24": 0.23 },
                 "bolkart": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.16, "18": 0.20, "24": 0.23 },
                 "umumi": { "full": 0 }
@@ -377,8 +382,8 @@
                 else rate = 0.07;
             } else if (seller === "x") {
                 const xRates = {
-                    "birbank": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19 },
-                    "abb": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19, "24": 0.21 },
+                    "birbank": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.16 },
+                    "abb": { "3": 0.05, "6": 0.07, "9": 0.08, "12": 0.09, "18": 0.12, "24": 0.15 },
                     "leo": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.15, "18": 0.20, "24": 0.23 },
                     "bolkart": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.15, "18": 0.20, "24": 0.23 }
                 };
@@ -394,6 +399,7 @@
                     rate += 0.015;
                 }
             }
+
             return rate;
         }
 
@@ -409,6 +415,17 @@
             const cardTotal = document.getElementById(`cardTotal${section}`);
             const cardBankName = document.getElementById(`cardBankName${section}`);
             const paymentPlanContent = document.getElementById(`paymentPlanContent${section}`);
+            const cardFront = document.getElementById(`creditCard${section}`).querySelector('.card-front');
+            const cardBack = document.getElementById(`creditCard${section}`).querySelector('.card-back');
+
+            // Şahmar üçün kart rəngini dəyiş
+            if (seller === "shahmar") {
+                cardFront.classList.add('shahmar');
+                cardBack.classList.add('shahmar');
+            } else {
+                cardFront.classList.remove('shahmar');
+                cardBack.classList.remove('shahmar');
+            }
 
             if (amount < 100 || amount > 10000 || initialPayment > amount) {
                 cardMonthly.innerText = "Xəta!";
@@ -420,11 +437,14 @@
                 paymentPlanContent.innerHTML = "";
             } else {
                 const remainingAmount = amount - initialPayment;
-                const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : 30);
+                const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : (seller === "shahmar" ? 0 : 30)); // Şahmar üçün xidmət haqqı 0
                 const amountWithFee = remainingAmount + serviceFee;
-                const interestRate = getInterestRate(bank, months, seller, amount);
+                const interestRate = getInterestRate(bank, months, seller, amount, section);
                 const totalInterest = amountWithFee * interestRate;
                 let totalAmount = amountWithFee + totalInterest;
+
+                // Ümumi məbləği yuxarıya yuvarlaşdır (10-a qədər)
+                totalAmount = Math.ceil(totalAmount / 10) * 10;
 
                 cardBankName.innerText = bankNames[bank];
                 cardMonthly.style.color = "#ffffff";
@@ -432,7 +452,6 @@
                 cardTotal.style.color = "#ffffff";
 
                 if (bank === "umumi") {
-                    totalAmount = Math.round(totalAmount / 10) * 10;
                     cardMonthly.innerText = "Tam Ödəniş";
                     cardInterest.innerText = totalInterest.toFixed(2) + " AZN";
                     cardTotal.innerText = totalAmount.toFixed(2) + " AZN";
@@ -486,7 +505,7 @@
             }
 
             const remainingAmount = amount - initialPayment;
-            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : 30);
+            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : (seller === "shahmar" ? 0 : 30)); // Şahmar üçün xidmət haqqı 0
             const amountWithFee = remainingAmount + serviceFee;
 
             const banks = ["birbank", "abb", "leo", "bolkart", "umumi"];
@@ -494,10 +513,10 @@
             const totalAmounts = [];
 
             banks.forEach(bank => {
-                const interestRate = getInterestRate(bank, months, seller, amount);
+                const interestRate = getInterestRate(bank, months, seller, amount, '1');
                 const totalInterest = amountWithFee * interestRate;
                 let totalAmount = amountWithFee + totalInterest;
-                if (bank === "umumi") totalAmount = Math.round(totalAmount / 10) * 10;
+                totalAmount = Math.ceil(totalAmount / 10) * 10; // Yuxarıya yuvarlaşdırma
                 const monthlyPayment = (bank === "umumi") ? totalAmount : totalAmount / months;
                 monthlyPayments.push(monthlyPayment.toFixed(2));
                 totalAmounts.push(totalAmount.toFixed(2));
