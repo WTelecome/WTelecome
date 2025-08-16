@@ -51,11 +51,11 @@
         body.dark-mode h2, body.dark-mode h3 { color: #b19cd9; }
         body.dark-mode #themeToggle i::before { content: "\f185"; }
         body.dark-mode #themeToggle { background: #8a2be2; }
-        /* Şahmar üçün xüsusi kart rəngi */
-        .card-front.shahmar { background: linear-gradient(135deg, #28a745, #1e7e34); }
-        .card-back.shahmar { background: linear-gradient(135deg, #218838, #1e7e34); }
-        body.dark-mode .card-front.shahmar { background: linear-gradient(135deg, #1e7e34, #2c2c2c); }
-        body.dark-mode .card-back.shahmar { background: linear-gradient(135deg, #218838, #2c2c2c); }
+        /* Şahmar və Birmarket üçün xüsusi kart rəngi */
+        .card-front.shahmar, .card-front.birmarket { background: linear-gradient(135deg, #28a745, #1e7e34); }
+        .card-back.shahmar, .card-back.birmarket { background: linear-gradient(135deg, #218838, #1e7e34); }
+        body.dark-mode .card-front.shahmar, body.dark-mode .card-front.birmarket { background: linear-gradient(135deg, #1e7e34, #2c2c2c); }
+        body.dark-mode .card-back.shahmar, body.dark-mode .card-back.birmarket { background: linear-gradient(135deg, #218838, #2c2c2c); }
         @media (max-width: 768px) { 
             .dual-container { flex-direction: column; } 
             .credit-card-container { pointer-events: none; } 
@@ -81,6 +81,7 @@
                 <label for="seller1" id="sellerLabel1">Satıcı seçin:</label>
                 <select id="seller1">
                     <option value="shahmar">Şahmar</option>
+                    <option value="birmarket">Birmarket</option>
                     <option value="elvin">Elvin</option>
                     <option value="chinara">Çinarə</option>
                     <option value="orkhan">Orxan</option>
@@ -134,6 +135,7 @@
                 <label for="seller2" id="sellerLabel2">Satıcı seçin:</label>
                 <select id="seller2">
                     <option value="shahmar">Şahmar</option>
+                    <option value="birmarket">Birmarket</option>
                     <option value="elvin">Elvin</option>
                     <option value="chinara">Çinarə</option>
                     <option value="orkhan">Orxan</option>
@@ -418,13 +420,13 @@
             const cardFront = document.getElementById(`creditCard${section}`).querySelector('.card-front');
             const cardBack = document.getElementById(`creditCard${section}`).querySelector('.card-back');
 
-            // Şahmar üçün kart rəngini dəyiş
-            if (seller === "shahmar") {
-                cardFront.classList.add('shahmar');
-                cardBack.classList.add('shahmar');
+            // Şahmar və Birmarket üçün kart rəngini dəyiş
+            if (seller === "shahmar" || seller === "birmarket") {
+                cardFront.classList.add(seller);
+                cardBack.classList.add(seller);
             } else {
-                cardFront.classList.remove('shahmar');
-                cardBack.classList.remove('shahmar');
+                cardFront.classList.remove('shahmar', 'birmarket');
+                cardBack.classList.remove('shahmar', 'birmarket');
             }
 
             if (amount < 100 || amount > 10000 || initialPayment > amount) {
@@ -437,7 +439,7 @@
                 paymentPlanContent.innerHTML = "";
             } else {
                 const remainingAmount = amount - initialPayment;
-                const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : (seller === "shahmar" ? 0 : 30)); // Şahmar üçün xidmət haqqı 0
+                const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : (seller === "shahmar" ? 0 : (seller === "birmarket" ? 20 : 30))); // Birmarket üçün 20 AZN
                 const amountWithFee = remainingAmount + serviceFee;
                 const interestRate = getInterestRate(bank, months, seller, amount, section);
                 const totalInterest = amountWithFee * interestRate;
@@ -505,7 +507,7 @@
             }
 
             const remainingAmount = amount - initialPayment;
-            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : (seller === "shahmar" ? 0 : 30)); // Şahmar üçün xidmət haqqı 0
+            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : (seller === "shahmar" ? 0 : (seller === "birmarket" ? 20 : 30))); // Birmarket üçün 20 AZN
             const amountWithFee = remainingAmount + serviceFee;
 
             const banks = ["birbank", "abb", "leo", "bolkart", "umumi"];
