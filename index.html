@@ -27,6 +27,7 @@
         h3 { font-size: 18px; margin-bottom: 10px; color: #666; }
         select, input, button { display: block; width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 8px; font-size: 14px; }
         select, input { border: 1px solid #ddd; }
+        .invalid-input { border: 2px solid #ff4040; }
         button { background: #8a2be2; color: #fff; border: none; cursor: pointer; transition: background 0.3s; }
         button:hover { background: #6a1bb2; }
         #themeToggle { background: #8a2be2; color: #fff; border: none; padding: 10px; border-radius: 8px; cursor: pointer; margin-bottom: 10px; }
@@ -35,7 +36,7 @@
         .dual-section { flex: 1; min-width: 300px; }
         .info { font-size: 12px; color: #888; margin-bottom: 10px; }
         .credit-card-container { perspective: 1000px; margin-top: 20px; cursor: pointer; }
-        .credit-card { width: 100%; height: 200px; position: relative; transform-style: preserve-3d; transition: transform 0.6s; }
+        .credit-card { width: 100%; height: 200px; position: relative; transform-style: preserve-3d; transition: transform 0.6s; will-change: transform; }
         .credit-card.flipped { transform: rotateY(180deg); }
         .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; padding: 15px; color: #fff; }
         .card-front { background: linear-gradient(135deg, #8a2be2, #4b0082); z-index: 2; }
@@ -65,7 +66,7 @@
             <option value="en">English</option>
             <option value="ru">Русский</option>
         </select>
-        <button id="themeToggle" onclick="toggleTheme()">Tünd Rejim</button>
+        <button id="themeToggle" aria-label="Rejimi dəyişdir" onclick="toggleTheme()">Tünd Rejim</button>
         <h2 id="title">Kredit Hesablama</h2>
 
         <div class="dual-container">
@@ -92,9 +93,9 @@
                     <option value="umumi">Ümumi Bank</option>
                 </select>
                 <label for="amount1" id="amountLabel1">Məhsulun dəyəri (AZN):</label>
-                <input type="number" id="amount1" placeholder="100 - 10000 AZN" min="100" max="10000">
+                <input type="number" id="amount1" placeholder="100 - 10000 AZN" min="100" max="10000" step="1">
                 <label for="initialPayment1" id="initialPaymentLabel1">İlkin ödəniş (AZN):</label>
-                <input type="number" id="initialPayment1" placeholder="0 AZN" min="0">
+                <input type="number" id="initialPayment1" placeholder="0 AZN" min="0" step="1">
                 <div class="info" id="serviceFeeInfo1">*Qalan məbləğə xidmət haqqı əlavə olunur</div>
                 <label for="months1" id="monthsLabel1">Neçə ay:</label>
                 <select id="months1">
@@ -104,8 +105,8 @@
                     <option value="12">12 ay</option>
                     <option value="18">18 ay</option>
                 </select>
-                <button id="calculateBtn1" class="calculate-btn" onclick="calculatePayment('1')">Hesabla</button>
-                <button id="toggleScenarioBtn" class="dual-compare-btn" onclick="toggleSecondScenario()">İkinci Ssenarini Aktivləşdir</button>
+                <button id="calculateBtn1" class="calculate-btn" aria-label="Hesabla" onclick="calculatePayment('1')">Hesabla</button>
+                <button id="toggleScenarioBtn" class="dual-compare-btn" aria-label="İkinci ssenari" onclick="toggleSecondScenario()">İkinci Ssenarini Aktivləşdir</button>
                 <div class="credit-card-container" id="creditCardContainer1" onclick="flipCard('1')">
                     <div class="credit-card" id="creditCard1">
                         <div class="card-front">
@@ -146,9 +147,9 @@
                     <option value="umumi">Ümumi Bank</option>
                 </select>
                 <label for="amount2" id="amountLabel2">Məhsulun dəyəri (AZN):</label>
-                <input type="number" id="amount2" placeholder="100 - 10000 AZN" min="100" max="10000">
+                <input type="number" id="amount2" placeholder="100 - 10000 AZN" min="100" max="10000" step="1">
                 <label for="initialPayment2" id="initialPaymentLabel2">İlkin ödəniş (AZN):</label>
-                <input type="number" id="initialPayment2" placeholder="0 AZN" min="0">
+                <input type="number" id="initialPayment2" placeholder="0 AZN" min="0" step="1">
                 <div class="info" id="serviceFeeInfo2">*Qalan məbləğə xidmət haqqı əlavə olunur</div>
                 <label for="months2" id="monthsLabel2">Neçə ay:</label>
                 <select id="months2">
@@ -158,7 +159,7 @@
                     <option value="12">12 ay</option>
                     <option value="18">18 ay</option>
                 </select>
-                <button id="calculateBtn2" class="calculate-btn" onclick="calculatePayment('2')">Hesabla</button>
+                <button id="calculateBtn2" class="calculate-btn" aria-label="Hesabla" onclick="calculatePayment('2')">Hesabla</button>
                 <div class="credit-card-container" id="creditCardContainer2" onclick="flipCard('2')">
                     <div class="credit-card" id="creditCard2">
                         <div class="card-front">
@@ -177,8 +178,8 @@
             </div>
         </div>
 
-        <button class="compare-btn" id="compareBtn" onclick="compareBanks()">Bütün bankları müqayisə et</button>
-        <button class="dual-compare-btn" onclick="dualCompare()">İkiqat Müqayisə</button>
+        <button class="compare-btn" id="compareBtn" aria-label="Bütün bankları müqayisə et" onclick="compareBanks()">Bütün bankları müqayisə et</button>
+        <button class="dual-compare-btn" aria-label="İkiqat müqayisə" onclick="dualCompare()">İkiqat Müqayisə</button>
         <div class="comparison-panel" id="comparisonPanel">
             <canvas id="comparisonChart"></canvas>
         </div>
@@ -188,10 +189,22 @@
         const swCode = `
             self.addEventListener('install', (event) => {
               console.log('Service Worker quraşdırıldı');
+              event.waitUntil(
+                  caches.open('wtelecome-cache').then(cache => {
+                      return cache.addAll([
+                          '/WTelecome/index.html',
+                          '/WTelecome/manifest.json'
+                      ]);
+                  })
+              );
             });
 
             self.addEventListener('fetch', (event) => {
-              event.respondWith(fetch(event.request));
+              event.respondWith(
+                  caches.match(event.request).then(response => {
+                      return response || fetch(event.request);
+                  })
+              );
             });
         `;
         if ('serviceWorker' in navigator) {
@@ -199,7 +212,10 @@
                 const blob = new Blob([swCode], { type: 'application/javascript' });
                 const swUrl = URL.createObjectURL(blob);
                 navigator.serviceWorker.register(swUrl)
-                    .then(reg => console.log('Service Worker qeydiyyatdan keçdi', reg))
+                    .then(reg => {
+                        console.log('Service Worker qeydiyyatdan keçdi', reg);
+                        URL.revokeObjectURL(swUrl); // Yaddaşı təmizlə
+                    })
                     .catch(err => console.log('Service Worker qeydiyyatı uğursuz oldu:', err));
             });
         }
@@ -212,6 +228,7 @@
             addBtn.textContent = 'Ana Ekrana Əlavə Et';
             addBtn.className = 'compare-btn';
             addBtn.style.marginTop = '20px';
+            addBtn.setAttribute('aria-label', 'Tətbiqi ana ekrana əlavə et');
             document.querySelector('.container').appendChild(addBtn);
             addBtn.addEventListener('click', () => {
                 deferredPrompt.prompt();
@@ -241,6 +258,8 @@
                 paymentPlanHeaders: ["Ay", "Ödəniş", "Qalıq"],
                 comparisonHeaders: ["Bank", "Aylıq Ödəniş", "Ümumi Məbləğ"],
                 error: "Məbləğ 100-10000 AZN olmalıdır!",
+                initialPaymentError: "İlkin ödəniş məbləğdən çox ola bilməz!",
+                emptyInputError: "Bütün sahələri doldurun!",
                 interestRateLabel: "Faiz dərəcəsi"
             },
             en: {
@@ -258,6 +277,8 @@
                 paymentPlanHeaders: ["Month", "Payment", "Remaining"],
                 comparisonHeaders: ["Bank", "Monthly Payment", "Total Amount"],
                 error: "Amount must be between 100-10000 AZN!",
+                initialPaymentError: "Initial payment cannot exceed the amount!",
+                emptyInputError: "Please fill all fields!",
                 interestRateLabel: "Interest Rate"
             },
             ru: {
@@ -275,6 +296,8 @@
                 paymentPlanHeaders: ["Месяц", "Платеж", "Остаток"],
                 comparisonHeaders: ["Банк", "Ежемесячный платеж", "Общая сумма"],
                 error: "Сумма должна быть от 100 до 10000 AZN!",
+                initialPaymentError: "Первоначальный взнос не может превышать сумму!",
+                emptyInputError: "Заполните все поля!",
                 interestRateLabel: "Процентная ставка"
             }
         };
@@ -291,6 +314,7 @@
 
         function updateLanguage() {
             const lang = document.getElementById("language").value;
+            localStorage.setItem('language', lang); // Dil seçimini saxla
             document.getElementById("title").innerText = translations[lang].title;
             ['1', '2'].forEach(section => {
                 document.getElementById(`sellerLabel${section}`).innerText = translations[lang].sellerLabel;
@@ -302,12 +326,15 @@
                 document.getElementById(`calculateBtn${section}`).innerText = translations[lang].calculateBtn;
             });
             document.getElementById("compareBtn").innerText = translations[lang].compareBtn;
-            document.getElementById("toggleScenarioBtn").innerText = translations[lang].toggleScenarioBtn;
+            document.getElementById("toggleScenarioBtn").innerText = document.getElementById("secondScenario").style.display === "none" ? 
+                translations[lang].toggleScenarioBtn : translations[lang].dualCompareBtn;
             document.getElementById("themeToggle").innerText = document.body.classList.contains('dark-mode') 
                 ? (lang === 'az' ? 'Açıq Rejim' : lang === 'en' ? 'Light Mode' : 'Светлый режим') 
                 : (lang === 'az' ? 'Tünd Rejim' : lang === 'en' ? 'Dark Mode' : 'Темный режим');
             calculatePayment('1');
-            calculatePayment('2');
+            if (document.getElementById("secondScenario").style.display !== "none") {
+                calculatePayment('2');
+            }
         }
 
         function toggleTheme() {
@@ -318,17 +345,19 @@
             themeToggleBtn.innerText = body.classList.contains('dark-mode') 
                 ? (lang === 'az' ? 'Açıq Rejim' : lang === 'en' ? 'Light Mode' : 'Светлый режим') 
                 : (lang === 'az' ? 'Tünd Rejim' : lang === 'en' ? 'Dark Mode' : 'Темный режим');
+            updateLanguage(); // Dil dəyişikliyini yenilə
         }
 
         function updateMonths(section) {
             const bank = document.getElementById(`bank${section}`).value;
             const monthsSelect = document.getElementById(`months${section}`);
+            const lang = document.getElementById("language").value;
             monthsSelect.innerHTML = "";
             
             if (bank === "umumi") {
                 const opt = document.createElement("option");
                 opt.value = "full";
-                opt.text = "Tam Ödəniş";
+                opt.text = translations[lang].paymentPlanHeaders[0]; // "Tam Ödəniş" və ya dilə uyğun
                 monthsSelect.appendChild(opt);
             } else {
                 const baseOptions = [
@@ -342,13 +371,13 @@
                 baseOptions.forEach(option => {
                     const opt = document.createElement("option");
                     opt.value = option.value;
-                    opt.text = option.text + " " + (translations[document.getElementById("language").value].monthsLabel.split(" ")[1] || "ay");
+                    opt.text = option.text + " " + translations[lang].monthsLabel.split(" ")[1];
                     monthsSelect.appendChild(opt);
                 });
                 if (bank === "tamkart" || bank === "leo" || bank === "bolkart") {
                     const opt = document.createElement("option");
                     opt.value = extraOption.value;
-                    opt.text = extraOption.text + " " + (translations[document.getElementById("language").value].monthsLabel.split(" ")[1] || "ay");
+                    opt.text = extraOption.text + " " + translations[lang].monthsLabel.split(" ")[1];
                     monthsSelect.appendChild(opt);
                 }
             }
@@ -406,8 +435,10 @@
             const lang = document.getElementById("language").value;
             const bank = document.getElementById(`bank${section}`).value;
             const seller = document.getElementById(`seller${section}`).value;
-            const amount = parseFloat(document.getElementById(`amount${section}`).value) || 0;
-            const initialPayment = parseFloat(document.getElementById(`initialPayment${section}`).value) || 0;
+            const amountInput = document.getElementById(`amount${section}`).value;
+            const initialPaymentInput = document.getElementById(`initialPayment${section}`).value;
+            const amount = parseFloat(amountInput) || 0;
+            const initialPayment = parseFloat(initialPaymentInput) || 0;
             const months = document.getElementById(`months${section}`).value === "full" ? "full" : parseInt(document.getElementById(`months${section}`).value);
             const cardMonthly = document.getElementById(`cardMonthly${section}`);
             const cardInterest = document.getElementById(`cardInterest${section}`);
@@ -417,6 +448,11 @@
             const cardFront = document.getElementById(`creditCard${section}`).querySelector('.card-front');
             const cardBack = document.getElementById(`creditCard${section}`).querySelector('.card-back');
 
+            // Daxiletmələri təmizlə
+            document.getElementById(`amount${section}`).classList.remove('invalid-input');
+            document.getElementById(`initialPayment${section}`).classList.remove('invalid-input');
+
+            // Kartın rəngini dəyişdir
             if (seller === "birmarket") {
                 cardFront.classList.add('birmarket');
                 cardBack.classList.add('birmarket');
@@ -425,60 +461,67 @@
                 cardBack.classList.remove('birmarket');
             }
 
-            if (amount < 100 || amount > 100 profesyonel00 || initialPayment > amount) {
-                cardMonthly.innerText = "Xəta!";
-                cardInterest.innerText = "Xəta!";
-                cardTotal.innerText = initialPayment > amount ? "İlkin ödəniş məbləğdən çox ola bilməz!" : translations[lang].error;
+            // Daxiletmələrin etibarlılığını yoxla
+            if (!amountInput || !initialPaymentInput || amount < 100 || amount > 10000 || initialPayment > amount) {
+                document.getElementById(`amount${section}`).classList.add('invalid-input');
+                document.getElementById(`initialPayment${section}`).classList.add('invalid-input');
+                cardMonthly.innerText = translations[lang].error;
+                cardInterest.innerText = translations[lang].error;
+                cardTotal.innerText = !amountInput || !initialPaymentInput ? translations[lang].emptyInputError :
+                                     initialPayment > amount ? translations[lang].initialPaymentError :
+                                     translations[lang].error;
                 cardMonthly.style.color = "#ff4040";
                 cardInterest.style.color = "#ff4040";
                 cardTotal.style.color = "#ff4040";
                 paymentPlanContent.innerHTML = "";
-            } else {
-                const remainingAmount = amount - initialPayment;
-                const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : seller === "birmarket" ? 20 : 30);
-                const amountWithFee = remainingAmount + serviceFee;
-                const interestRate = getInterestRate(bank, months, seller, amount);
-                const totalInterest = amountWithFee * interestRate;
-                let totalAmount = amountWithFee + totalInterest;
-
-                cardBankName.innerText = bankNames[bank];
-                cardMonthly.style.color = "#ffffff";
-                cardInterest.style.color = "#ffffff";
-                cardTotal.style.color = "#ffffff";
-
-                if (bank === "umumi") {
-                    totalAmount = Math.round(totalAmount / 10) * 10;
-                    cardMonthly.innerText = "Tam Ödəniş";
-                    cardInterest.innerText = (interestRate * 100).toFixed(2) + "%";
-                    cardTotal.innerText = totalAmount.toFixed(2) + " AZN";
-                    paymentPlanContent.innerHTML = `
-                        <p>Tam Ödəniş: ${totalAmount.toFixed(2)} AZN</p>
-                        <div class="details">
-                            <p>${translations[lang].amountLabel} ${amount.toFixed(2)} AZN</p>
-                            <p>${translations[lang].serviceFeeInfo.replace('*', '')}: ${serviceFee.toFixed(2)} AZN</p>
-                            <p>${translations[lang].interestRateLabel}: ${(interestRate * 100).toFixed(2)}%</p>
-                        </div>`;
-                } else {
-                    const monthlyPayment = totalAmount / months;
-                    cardMonthly.innerText = monthlyPayment.toFixed(2) + " AZN";
-                    cardInterest.innerText = (interestRate * 100).toFixed(2) + "%";
-                    cardTotal.innerText = totalAmount.toFixed(2) + " AZN";
-
-                    let remainingDebt = totalAmount;
-                    let tableHTML = `<table><tr><th>${translations[lang].paymentPlanHeaders[0]}</th><th>${translations[lang].paymentPlanHeaders[1]}</th><th>${translations[lang].paymentPlanHeaders[2]}</th></tr>`;
-                    for (let i = 1; i <= months; i++) {
-                        remainingDebt -= monthlyPayment;
-                        tableHTML += `<tr><td>${i}</td><td>${monthlyPayment.toFixed(2)} AZN</td><td>${remainingDebt.toFixed(2)} AZN</td></tr>`;
-                    }
-                    tableHTML += `</table>
-                        <div class="details">
-                            <p>${translations[lang].amountLabel} ${amount.toFixed(2)} AZN</p>
-                            <p>${translations[lang].serviceFeeInfo.replace('*', '')}: ${serviceFee.toFixed(2)} AZN</p>
-                            <p>${translations[lang].interestRateLabel}: ${(interestRate * 100).toFixed(2)}%</p>
-                        </div>`;
-                    paymentPlanContent.innerHTML = tableHTML;
-                }
+                return;
             }
+
+            const remainingAmount = amount - initialPayment;
+            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : seller === "birmarket" ? 20 : 30);
+            const amountWithFee = remainingAmount + serviceFee;
+            const interestRate = getInterestRate(bank, months, seller, amount);
+            const totalInterest = amountWithFee * interestRate;
+            let totalAmount = amountWithFee + totalInterest;
+
+            cardBankName.innerText = bankNames[bank];
+            cardMonthly.style.color = "#ffffff";
+            cardInterest.style.color = "#ffffff";
+            cardTotal.style.color = "#ffffff";
+
+            if (bank === "umumi") {
+                totalAmount = Math.round(totalAmount / 10) * 10;
+                cardMonthly.innerText = translations[lang].paymentPlanHeaders[0];
+                cardInterest.innerText = (interestRate * 100).toFixed(2) + "%";
+                cardTotal.innerText = totalAmount.toFixed(2) + " AZN";
+                paymentPlanContent.innerHTML = `
+                    <p>${translations[lang].paymentPlanHeaders[0]}: ${totalAmount.toFixed(2)} AZN</p>
+                    <div class="details">
+                        <p>${translations[lang].amountLabel} ${amount.toFixed(2)} AZN</p>
+                        <p>${translations[lang].serviceFeeInfo.replace('*', '')}: ${serviceFee.toFixed(2)} AZN</p>
+                        <p>${translations[lang].interestRateLabel}: ${(interestRate * 100).toFixed(2)}%</p>
+                    </div>`;
+            } else {
+                const monthlyPayment = totalAmount / months;
+                cardMonthly.innerText = monthlyPayment.toFixed(2) + " AZN";
+                cardInterest.innerText = (interestRate * 100).toFixed(2) + "%";
+                cardTotal.innerText = totalAmount.toFixed(2) + " AZN";
+
+                let remainingDebt = totalAmount;
+                let tableHTML = `<table><tr><th>${translations[lang].paymentPlanHeaders[0]}</th><th>${translations[lang].paymentPlanHeaders[1]}</th><th>${translations[lang].paymentPlanHeaders[2]}</th></tr>`;
+                for (let i = 1; i <= months; i++) {
+                    remainingDebt -= monthlyPayment;
+                    tableHTML += `<tr><td>${i}</td><td>${monthlyPayment.toFixed(2)} AZN</td><td>${remainingDebt.toFixed(2)} AZN</td></tr>`;
+                }
+                tableHTML += `</table>
+                    <div class="details">
+                        <p>${translations[lang].amountLabel} ${amount.toFixed(2)} AZN</p>
+                        <p>${translations[lang].serviceFeeInfo.replace('*', '')}: ${serviceFee.toFixed(2)} AZN</p>
+                        <p>${translations[lang].interestRateLabel}: ${(interestRate * 100).toFixed(2)}%</p>
+                    </div>`;
+                paymentPlanContent.innerHTML = tableHTML;
+            }
+            console.log(`Section ${section}: amount=${amount}, initialPayment=${initialPayment}, months=${months}, bank=${bank}, seller=${seller}`);
         }
 
         function toggleSecondScenario() {
@@ -501,13 +544,19 @@
 
         function compareBanks() {
             const seller = document.getElementById("seller1").value;
-            const amount = parseFloat(document.getElementById("amount1").value) || 0;
-            const initialPayment = parseFloat(document.getElementById("initialPayment1").value) || 0;
+            const amountInput = document.getElementById("amount1").value;
+            const initialPaymentInput = document.getElementById("initialPayment1").value;
+            const amount = parseFloat(amountInput) || 0;
+            const initialPayment = parseFloat(initialPaymentInput) || 0;
             const months = document.getElementById("months1").value === "full" ? "full" : parseInt(document.getElementById("months1").value);
             const lang = document.getElementById("language").value;
 
-            if (amount < 100 || amount > 10000 || initialPayment > amount) {
-                alert(translations[lang].error);
+            if (!amountInput || !initialPaymentInput || amount < 100 || amount > 10000 || initialPayment > amount) {
+                alert(!amountInput || !initialPaymentInput ? translations[lang].emptyInputError :
+                      initialPayment > amount ? translations[lang].initialPaymentError :
+                      translations[lang].error);
+                document.getElementById("amount1").classList.add('invalid-input');
+                document.getElementById("initialPayment1").classList.add('invalid-input');
                 return;
             }
 
@@ -555,6 +604,8 @@
         }
 
         window.addEventListener('load', () => {
+            const savedLang = localStorage.getItem('language') || 'az';
+            document.getElementById('language').value = savedLang;
             updateMonths('1');
             updateMonths('2');
             updateLanguage();
