@@ -12,6 +12,15 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Montserrat', sans-serif; margin: 0; padding: 10px; background: #f5f5f5; color: #333; }
+        body.dark-mode { background: #1a1a1a; color: #e0e0e0; }
+        body.dark-mode .container { background: #2c2c2c; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); }
+        body.dark-mode select, body.dark-mode input { background: #3c3c3c; color: #e0e0e0; border: 1px solid #555; }
+        body.dark-mode button { background: #d32f2f; }
+        body.dark-mode button:hover { background: #b71c1c; }
+        body.dark-mode .info { color: #bbb; }
+        body.dark-mode .payment-plan th, body.dark-mode .payment-plan td { border: 1px solid #555; }
+        body.dark-mode .details { color: #e0e0e0; }
+        body.dark-mode .card-front, body.dark-mode .card-back { background: linear-gradient(135deg, #d32f2f, #b71c1c); }
         .container { background: #ffffff; padding: 15px; border-radius: 15px; box-shadow: 0 4px 16px rgba(147, 112, 219, 0.15); max-width: 100%; }
         .logo { margin-bottom: 10px; text-align: center; font-size: 24px; font-weight: 700; color: #8a2be2; }
         h2 { font-size: 22px; font-weight: 600; margin-bottom: 15px; text-align: center; color: #8a2be2; }
@@ -20,6 +29,8 @@
         select, input { border: 1px solid #ddd; }
         button { background: #8a2be2; color: #fff; border: none; cursor: pointer; transition: background 0.3s; }
         button:hover { background: #6a1bb2; }
+        #themeToggle { background: #8a2be2; color: #fff; border: none; padding: 10px; border-radius: 8px; cursor: pointer; margin-bottom: 10px; }
+        #themeToggle:hover { background: #6a1bb2; }
         .dual-container { display: flex; flex-wrap: wrap; gap: 20px; }
         .dual-section { flex: 1; min-width: 300px; }
         .info { font-size: 12px; color: #888; margin-bottom: 10px; }
@@ -29,36 +40,19 @@
         .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; padding: 15px; color: #fff; }
         .card-front { background: linear-gradient(135deg, #8a2be2, #4b0082); z-index: 2; }
         .card-back { background: linear-gradient(135deg, #6a1bb2, #4b0082); transform: rotateY(180deg); }
+        .card-front.birmarket, .card-back.birmarket { background: linear-gradient(135deg, #d32f2f, #b71c1c); }
         .card-bank-name { font-size: 18px; font-weight: 600; margin-bottom: 10px; }
         .card-details { display: flex; flex-direction: column; gap: 8px; }
         .card-details div { font-size: 14px; }
         .payment-plan { margin-top: 10px; }
         .payment-plan table { width: 100%; border-collapse: collapse; font-size: 12px; }
         .payment-plan th, .payment-plan td { padding: 5px; text-align: center; border: 1px solid #ddd; }
+        .details { margin-top: 10px; font-size: 12px; color: #fff; }
+        .details p { margin: 5px 0; }
         .comparison-panel { margin-top: 20px; display: none; }
         .compare-btn, .dual-compare-btn { margin-top: 10px; }
-        /* Tünd rejim stilləri */
-        body.dark-mode { background: #1a1a1a; color: #e0e0e0; }
-        body.dark-mode .container { background: #2c2c2c; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); }
-        body.dark-mode select, body.dark-mode input { background: #333; color: #e0e0e0; border: 1px solid #555; }
-        body.dark-mode button { background: #6a1bb2; }
-        body.dark-mode button:hover { background: #8a2be2; }
-        body.dark-mode .info { color: #aaa; }
-        body.dark-mode .card-front { background: linear-gradient(135deg, #4b0082, #2c2c2c); }
-        body.dark-mode .card-back { background: linear-gradient(135deg, #6a1bb2, #2c2c2c); }
-        body.dark-mode .payment-plan th, body.dark-mode .payment-plan td { border: 1px solid #555; color: #e0e0e0; }
-        body.dark-mode .logo { color: #b19cd9; }
-        body.dark-mode h2, body.dark-mode h3 { color: #b19cd9; }
-        body.dark-mode #themeToggle i::before { content: "\f185"; }
-        body.dark-mode #themeToggle { background: #8a2be2; }
-        /* Şahmar və Birmarket üçün xüsusi kart rəngi */
-        .card-front.shahmar, .card-front.birmarket { background: linear-gradient(135deg, #28a745, #1e7e34); }
-        .card-back.shahmar, .card-back.birmarket { background: linear-gradient(135deg, #218838, #1e7e34); }
-        body.dark-mode .card-front.shahmar, body.dark-mode .card-front.birmarket { background: linear-gradient(135deg, #1e7e34, #2c2c2c); }
-        body.dark-mode .card-back.shahmar, body.dark-mode .card-back.birmarket { background: linear-gradient(135deg, #218838, #2c2c2c); }
         @media (max-width: 768px) { 
             .dual-container { flex-direction: column; } 
-            .credit-card-container { pointer-events: none; } 
             .logo { font-size: 20px; }
         }
     </style>
@@ -71,7 +65,7 @@
             <option value="en">English</option>
             <option value="ru">Русский</option>
         </select>
-        <button id="themeToggle" class="compare-btn"><i class="fas fa-moon"></i> Tünd Rejim</button>
+        <button id="themeToggle" onclick="toggleTheme()">Tünd Rejim</button>
         <h2 id="title">Kredit Hesablama</h2>
 
         <div class="dual-container">
@@ -80,8 +74,8 @@
                 <h3>Hesabat 1</h3>
                 <label for="seller1" id="sellerLabel1">Satıcı seçin:</label>
                 <select id="seller1">
+                    <option value="birmarket" selected>BİRMARKET</option>
                     <option value="shahmar">Şahmar</option>
-                    <option value="birmarket">Birmarket</option>
                     <option value="elvin">Elvin</option>
                     <option value="chinara">Çinarə</option>
                     <option value="orkhan">Orxan</option>
@@ -91,8 +85,8 @@
                 </select>
                 <label for="bank1" id="bankLabel1">Bankı seçin:</label>
                 <select id="bank1" onchange="updateMonths('1')">
-                    <option value="birbank">Birbank</option>
-                    <option value="abb">ABB Bank</option>
+                    <option value="kapital">Kapital</option>
+                    <option value="tamkart">TamKart</option>
                     <option value="leo">Leo Bank</option>
                     <option value="bolkart">Bolkart</option>
                     <option value="umumi">Ümumi Bank</option>
@@ -118,7 +112,7 @@
                             <div class="card-bank-name" id="cardBankName1">Bank</div>
                             <div class="card-details">
                                 <div>Aylıq ödəniş: <span id="cardMonthly1">0.00 AZN</span></div>
-                                <div>Ümumi faiz: <span id="cardInterest1">0.00 AZN</span></div>
+                                <div>Faiz dərəcəsi: <span id="cardInterest1">0.00%</span></div>
                                 <div>Ümumi məbləğ: <span id="cardTotal1">0.00 AZN</span></div>
                             </div>
                         </div>
@@ -134,8 +128,8 @@
                 <h3>Hesabat 2</h3>
                 <label for="seller2" id="sellerLabel2">Satıcı seçin:</label>
                 <select id="seller2">
+                    <option value="birmarket" selected>BİRMARKET</option>
                     <option value="shahmar">Şahmar</option>
-                    <option value="birmarket">Birmarket</option>
                     <option value="elvin">Elvin</option>
                     <option value="chinara">Çinarə</option>
                     <option value="orkhan">Orxan</option>
@@ -145,8 +139,8 @@
                 </select>
                 <label for="bank2" id="bankLabel2">Bankı seçin:</label>
                 <select id="bank2" onchange="updateMonths('2')">
-                    <option value="birbank">Birbank</option>
-                    <option value="abb">ABB Bank</option>
+                    <option value="kapital">Kapital</option>
+                    <option value="tamkart">TamKart</option>
                     <option value="leo">Leo Bank</option>
                     <option value="bolkart">Bolkart</option>
                     <option value="umumi">Ümumi Bank</option>
@@ -171,7 +165,7 @@
                             <div class="card-bank-name" id="cardBankName2">Bank</div>
                             <div class="card-details">
                                 <div>Aylıq ödəniş: <span id="cardMonthly2">0.00 AZN</span></div>
-                                <div>Ümumi faiz: <span id="cardInterest2">0.00 AZN</span></div>
+                                <div>Faiz dərəcəsi: <span id="cardInterest2">0.00%</span></div>
                                 <div>Ümumi məbləğ: <span id="cardTotal2">0.00 AZN</span></div>
                             </div>
                         </div>
@@ -247,8 +241,7 @@
                 paymentPlanHeaders: ["Ay", "Ödəniş", "Qalıq"],
                 comparisonHeaders: ["Bank", "Aylıq Ödəniş", "Ümumi Məbləğ"],
                 error: "Məbləğ 100-10000 AZN olmalıdır!",
-                themeToggle: "Tünd Rejim",
-                themeToggleLight: "Aydın Rejim"
+                interestRateLabel: "Faiz dərəcəsi"
             },
             en: {
                 title: "Loan Calculator",
@@ -265,8 +258,7 @@
                 paymentPlanHeaders: ["Month", "Payment", "Remaining"],
                 comparisonHeaders: ["Bank", "Monthly Payment", "Total Amount"],
                 error: "Amount must be between 100-10000 AZN!",
-                themeToggle: "Dark Mode",
-                themeToggleLight: "Light Mode"
+                interestRateLabel: "Interest Rate"
             },
             ru: {
                 title: "Калькулятор кредита",
@@ -283,14 +275,13 @@
                 paymentPlanHeaders: ["Месяц", "Платеж", "Остаток"],
                 comparisonHeaders: ["Банк", "Ежемесячный платеж", "Общая сумма"],
                 error: "Сумма должна быть от 100 до 10000 AZN!",
-                themeToggle: "Тёмный режим",
-                themeToggleLight: "Светлый режим"
+                interestRateLabel: "Процентная ставка"
             }
         };
 
         const bankNames = {
-            "birbank": "Birbank",
-            "abb": "ABB Bank",
+            "kapital": "Kapital",
+            "tamkart": "TamKart",
             "leo": "Leo Bank",
             "bolkart": "Bolkart",
             "umumi": "Ümumi Bank"
@@ -312,22 +303,21 @@
             });
             document.getElementById("compareBtn").innerText = translations[lang].compareBtn;
             document.getElementById("toggleScenarioBtn").innerText = translations[lang].toggleScenarioBtn;
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            document.getElementById("themeToggle").innerHTML = isDarkMode 
-                ? `<i class="fas fa-sun"></i> ${translations[lang].themeToggleLight}`
-                : `<i class="fas fa-moon"></i> ${translations[lang].themeToggle}`;
+            document.getElementById("themeToggle").innerText = document.body.classList.contains('dark-mode') 
+                ? (lang === 'az' ? 'Açıq Rejim' : lang === 'en' ? 'Light Mode' : 'Светлый режим') 
+                : (lang === 'az' ? 'Tünd Rejim' : lang === 'en' ? 'Dark Mode' : 'Темный режим');
             calculatePayment('1');
             calculatePayment('2');
         }
 
         function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            const lang = document.getElementById("language").value;
-            document.getElementById('themeToggle').innerHTML = isDarkMode 
-                ? `<i class="fas fa-sun"></i> ${translations[lang].themeToggleLight}`
-                : `<i class="fas fa-moon"></i> ${translations[lang].themeToggle}`;
-            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+            const themeToggleBtn = document.getElementById('themeToggle');
+            const lang = document.getElementById('language').value;
+            themeToggleBtn.innerText = body.classList.contains('dark-mode') 
+                ? (lang === 'az' ? 'Açıq Rejim' : lang === 'en' ? 'Light Mode' : 'Светлый режим') 
+                : (lang === 'az' ? 'Tünd Rejim' : lang === 'en' ? 'Dark Mode' : 'Темный режим');
         }
 
         function updateMonths(section) {
@@ -355,7 +345,7 @@
                     opt.text = option.text + " " + (translations[document.getElementById("language").value].monthsLabel.split(" ")[1] || "ay");
                     monthsSelect.appendChild(opt);
                 });
-                if (bank === "abb" || bank === "leo" || bank === "bolkart") {
+                if (bank === "tamkart" || bank === "leo" || bank === "bolkart") {
                     const opt = document.createElement("option");
                     opt.value = extraOption.value;
                     opt.text = extraOption.text + " " + (translations[document.getElementById("language").value].monthsLabel.split(" ")[1] || "ay");
@@ -364,16 +354,24 @@
             }
         }
 
-        function getInterestRate(bank, months, seller, amount, section) {
-            const rates = {
-                "birbank": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.16 },
-                "abb": { "3": 0.05, "6": 0.07, "9": 0.08, "12": 0.09, "18": 0.12, "24": 0.15 },
+        function getInterestRate(bank, months, seller, amount) {
+            const defaultRates = {
+                "kapital": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19, "24": 0.21 },
+                "tamkart": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19, "24": 0.21 },
                 "leo": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.16, "18": 0.20, "24": 0.23 },
                 "bolkart": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.16, "18": 0.20, "24": 0.23 },
                 "umumi": { "full": 0 }
             };
 
-            let rate = rates[bank][months];
+            const birmarketRates = {
+                "kapital": { "3": 0.06, "6": 0.10, "9": 0.11, "12": 0.14, "18": 0.15, "24": 0.22 },
+                "tamkart": { "3": 0.06, "6": 0.10, "9": 0.11, "12": 0.14, "18": 0.15, "24": 0.22 },
+                "leo": { "3": 0.09, "6": 0.13, "9": 0.14, "12": 0.17, "18": 0.18, "24": 0.25 },
+                "bolkart": { "3": 0.09, "6": 0.13, "9": 0.14, "12": 0.17, "18": 0.18, "24": 0.25 },
+                "umumi": { "full": 0 }
+            };
+
+            let rate = seller === "birmarket" ? birmarketRates[bank][months] : defaultRates[bank][months];
 
             if (bank === "umumi") {
                 if (amount <= 500) rate = 0.12;
@@ -384,13 +382,13 @@
                 else rate = 0.07;
             } else if (seller === "x") {
                 const xRates = {
-                    "birbank": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.16 },
-                    "abb": { "3": 0.05, "6": 0.07, "9": 0.08, "12": 0.09, "18": 0.12, "24": 0.15 },
+                    "kapital": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19, "24": 0.21 },
+                    "tamkart": { "3": 0.06, "6": 0.11, "9": 0.13, "12": 0.15, "18": 0.19, "24": 0.21 },
                     "leo": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.15, "18": 0.20, "24": 0.23 },
                     "bolkart": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.15, "18": 0.20, "24": 0.23 }
                 };
                 rate = xRates[bank][months];
-            } else {
+            } else if (seller !== "birmarket") {
                 if (seller === "chinara") {
                     rate += 0.02;
                 }
@@ -401,7 +399,6 @@
                     rate += 0.015;
                 }
             }
-
             return rate;
         }
 
@@ -420,16 +417,15 @@
             const cardFront = document.getElementById(`creditCard${section}`).querySelector('.card-front');
             const cardBack = document.getElementById(`creditCard${section}`).querySelector('.card-back');
 
-            // Şahmar və Birmarket üçün kart rəngini dəyiş
-            if (seller === "shahmar" || seller === "birmarket") {
-                cardFront.classList.add(seller);
-                cardBack.classList.add(seller);
+            if (seller === "birmarket") {
+                cardFront.classList.add('birmarket');
+                cardBack.classList.add('birmarket');
             } else {
-                cardFront.classList.remove('shahmar', 'birmarket');
-                cardBack.classList.remove('shahmar', 'birmarket');
+                cardFront.classList.remove('birmarket');
+                cardBack.classList.remove('birmarket');
             }
 
-            if (amount < 100 || amount > 10000 || initialPayment > amount) {
+            if (amount < 100 || amount > 100 profesyonel00 || initialPayment > amount) {
                 cardMonthly.innerText = "Xəta!";
                 cardInterest.innerText = "Xəta!";
                 cardTotal.innerText = initialPayment > amount ? "İlkin ödəniş məbləğdən çox ola bilməz!" : translations[lang].error;
@@ -439,14 +435,11 @@
                 paymentPlanContent.innerHTML = "";
             } else {
                 const remainingAmount = amount - initialPayment;
-                const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : (seller === "shahmar" ? 0 : (seller === "birmarket" ? 20 : 30))); // Birmarket üçün 20 AZN
+                const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : seller === "birmarket" ? 20 : 30);
                 const amountWithFee = remainingAmount + serviceFee;
-                const interestRate = getInterestRate(bank, months, seller, amount, section);
+                const interestRate = getInterestRate(bank, months, seller, amount);
                 const totalInterest = amountWithFee * interestRate;
                 let totalAmount = amountWithFee + totalInterest;
-
-                // Ümumi məbləği yuxarıya yuvarlaşdır (10-a qədər)
-                totalAmount = Math.ceil(totalAmount / 10) * 10;
 
                 cardBankName.innerText = bankNames[bank];
                 cardMonthly.style.color = "#ffffff";
@@ -454,14 +447,21 @@
                 cardTotal.style.color = "#ffffff";
 
                 if (bank === "umumi") {
+                    totalAmount = Math.round(totalAmount / 10) * 10;
                     cardMonthly.innerText = "Tam Ödəniş";
-                    cardInterest.innerText = totalInterest.toFixed(2) + " AZN";
+                    cardInterest.innerText = (interestRate * 100).toFixed(2) + "%";
                     cardTotal.innerText = totalAmount.toFixed(2) + " AZN";
-                    paymentPlanContent.innerHTML = `<p>Tam Ödəniş: ${totalAmount.toFixed(2)} AZN</p>`;
+                    paymentPlanContent.innerHTML = `
+                        <p>Tam Ödəniş: ${totalAmount.toFixed(2)} AZN</p>
+                        <div class="details">
+                            <p>${translations[lang].amountLabel} ${amount.toFixed(2)} AZN</p>
+                            <p>${translations[lang].serviceFeeInfo.replace('*', '')}: ${serviceFee.toFixed(2)} AZN</p>
+                            <p>${translations[lang].interestRateLabel}: ${(interestRate * 100).toFixed(2)}%</p>
+                        </div>`;
                 } else {
                     const monthlyPayment = totalAmount / months;
                     cardMonthly.innerText = monthlyPayment.toFixed(2) + " AZN";
-                    cardInterest.innerText = totalInterest.toFixed(2) + " AZN";
+                    cardInterest.innerText = (interestRate * 100).toFixed(2) + "%";
                     cardTotal.innerText = totalAmount.toFixed(2) + " AZN";
 
                     let remainingDebt = totalAmount;
@@ -470,7 +470,12 @@
                         remainingDebt -= monthlyPayment;
                         tableHTML += `<tr><td>${i}</td><td>${monthlyPayment.toFixed(2)} AZN</td><td>${remainingDebt.toFixed(2)} AZN</td></tr>`;
                     }
-                    tableHTML += "</table>";
+                    tableHTML += `</table>
+                        <div class="details">
+                            <p>${translations[lang].amountLabel} ${amount.toFixed(2)} AZN</p>
+                            <p>${translations[lang].serviceFeeInfo.replace('*', '')}: ${serviceFee.toFixed(2)} AZN</p>
+                            <p>${translations[lang].interestRateLabel}: ${(interestRate * 100).toFixed(2)}%</p>
+                        </div>`;
                     paymentPlanContent.innerHTML = tableHTML;
                 }
             }
@@ -507,18 +512,18 @@
             }
 
             const remainingAmount = amount - initialPayment;
-            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : (seller === "shahmar" ? 0 : (seller === "birmarket" ? 20 : 30))); // Birmarket üçün 20 AZN
+            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : seller === "birmarket" ? 20 : 30);
             const amountWithFee = remainingAmount + serviceFee;
 
-            const banks = ["birbank", "abb", "leo", "bolkart", "umumi"];
+            const banks = ["kapital", "tamkart", "leo", "bolkart", "umumi"];
             const monthlyPayments = [];
             const totalAmounts = [];
 
             banks.forEach(bank => {
-                const interestRate = getInterestRate(bank, months, seller, amount, '1');
+                const interestRate = getInterestRate(bank, months, seller, amount);
                 const totalInterest = amountWithFee * interestRate;
                 let totalAmount = amountWithFee + totalInterest;
-                totalAmount = Math.ceil(totalAmount / 10) * 10; // Yuxarıya yuvarlaşdırma
+                if (bank === "umumi") totalAmount = Math.round(totalAmount / 10) * 10;
                 const monthlyPayment = (bank === "umumi") ? totalAmount : totalAmount / months;
                 monthlyPayments.push(monthlyPayment.toFixed(2));
                 totalAmounts.push(totalAmount.toFixed(2));
@@ -550,15 +555,9 @@
         }
 
         window.addEventListener('load', () => {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-                document.getElementById('themeToggle').innerHTML = `<i class="fas fa-sun"></i> ${translations[document.getElementById("language").value].themeToggleLight}`;
-            }
             updateMonths('1');
             updateMonths('2');
             updateLanguage();
-            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
         });
     </script>
 </body>
