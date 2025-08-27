@@ -42,6 +42,7 @@
         .card-front { background: linear-gradient(135deg, #8a2be2, #4b0082); z-index: 2; }
         .card-back { background: linear-gradient(135deg, #6a1bb2, #4b0082); transform: rotateY(180deg); }
         .card-front.birmarket, .card-back.birmarket { background: linear-gradient(135deg, #d32f2f, #b71c1c); }
+        .card-front.bank, .card-back.bank { background: linear-gradient(135deg, #4682b4, #1e90ff); }
         .card-bank-name { font-size: 18px; font-weight: 600; margin-bottom: 10px; }
         .card-details { display: flex; flex-direction: column; gap: 8px; }
         .card-details div { font-size: 14px; }
@@ -74,7 +75,7 @@
             <div class="dual-section">
                 <h3>Hesabat 1</h3>
                 <label for="seller1" id="sellerLabel1">Satıcı seçin:</label>
-                <select id="seller1">
+                <select id="seller1" onchange="updateMonths('1')">
                     <option value="birmarket" selected>BİRMARKET</option>
                     <option value="shahmar">Şahmar</option>
                     <option value="elvin">Elvin</option>
@@ -83,6 +84,7 @@
                     <option value="mirjamil">Mircəmil</option>
                     <option value="narmin">Nərmin</option>
                     <option value="x">X</option>
+                    <option value="bank">Bank</option>
                 </select>
                 <label for="bank1" id="bankLabel1">Bankı seçin:</label>
                 <select id="bank1" onchange="updateMonths('1')">
@@ -128,7 +130,7 @@
             <div class="dual-section" id="secondScenario" style="display: none;">
                 <h3>Hesabat 2</h3>
                 <label for="seller2" id="sellerLabel2">Satıcı seçin:</label>
-                <select id="seller2">
+                <select id="seller2" onchange="updateMonths('2')">
                     <option value="birmarket" selected>BİRMARKET</option>
                     <option value="shahmar">Şahmar</option>
                     <option value="elvin">Elvin</option>
@@ -137,6 +139,7 @@
                     <option value="mirjamil">Mircəmil</option>
                     <option value="narmin">Nərmin</option>
                     <option value="x">X</option>
+                    <option value="bank">Bank</option>
                 </select>
                 <label for="bank2" id="bankLabel2">Bankı seçin:</label>
                 <select id="bank2" onchange="updateMonths('2')">
@@ -214,7 +217,7 @@
                 navigator.serviceWorker.register(swUrl)
                     .then(reg => {
                         console.log('Service Worker qeydiyyatdan keçdi', reg);
-                        URL.revokeObjectURL(swUrl); // Yaddaşı təmizlə
+                        URL.revokeObjectURL(swUrl);
                     })
                     .catch(err => console.log('Service Worker qeydiyyatı uğursuz oldu:', err));
             });
@@ -307,14 +310,16 @@
             "tamkart": "TamKart",
             "leo": "Leo Bank",
             "bolkart": "Bolkart",
-            "umumi": "Ümumi Bank"
+            "umumi": "Ümumi Bank",
+            "resmi": "Rəsmi",
+            "qeyri-resmi": "Qeyri-rəsmi"
         };
 
         let comparisonChart;
 
         function updateLanguage() {
             const lang = document.getElementById("language").value;
-            localStorage.setItem('language', lang); // Dil seçimini saxla
+            localStorage.setItem('language', lang);
             document.getElementById("title").innerText = translations[lang].title;
             ['1', '2'].forEach(section => {
                 document.getElementById(`sellerLabel${section}`).innerText = translations[lang].sellerLabel;
@@ -345,40 +350,85 @@
             themeToggleBtn.innerText = body.classList.contains('dark-mode') 
                 ? (lang === 'az' ? 'Açıq Rejim' : lang === 'en' ? 'Light Mode' : 'Светлый режим') 
                 : (lang === 'az' ? 'Tünd Rejim' : lang === 'en' ? 'Dark Mode' : 'Темный режим');
-            updateLanguage(); // Dil dəyişikliyini yenilə
+            updateLanguage();
         }
 
         function updateMonths(section) {
-            const bank = document.getElementById(`bank${section}`).value;
+            const bankSelect = document.getElementById(`bank${section}`);
+            const seller = document.getElementById(`seller${section}`).value;
             const monthsSelect = document.getElementById(`months${section}`);
             const lang = document.getElementById("language").value;
             monthsSelect.innerHTML = "";
-            
-            if (bank === "umumi") {
-                const opt = document.createElement("option");
-                opt.value = "full";
-                opt.text = translations[lang].paymentPlanHeaders[0]; // "Tam Ödəniş" və ya dilə uyğun
-                monthsSelect.appendChild(opt);
-            } else {
-                const baseOptions = [
+            bankSelect.innerHTML = "";
+
+            if (seller === "bank") {
+                const bankOptions = [
+                    { value: "resmi", text: translations[lang].bankLabel.split(":")[0] + " (Rəsmi)" },
+                    { value: "qeyri-resmi", text: translations[lang].bankLabel.split(":")[0] + " (Qeyri-rəsmi)" }
+                ];
+                bankOptions.forEach(option => {
+                    const opt = document.createElement("option");
+                    opt.value = option.value;
+                    opt.text = option.text;
+                    bankSelect.appendChild(opt);
+                });
+
+                const monthOptions = [
+                    { value: "2", text: "2" },
                     { value: "3", text: "3" },
                     { value: "6", text: "6" },
-                    { value: "9", text: "9" },
                     { value: "12", text: "12" },
-                    { value: "18", text: "18" }
+                    { value: "18", text: "18" },
+                    { value: "24", text: "24" },
+                    { value: "35", text: "35" }
                 ];
-                const extraOption = { value: "24", text: "24" };
-                baseOptions.forEach(option => {
+                monthOptions.forEach(option => {
                     const opt = document.createElement("option");
                     opt.value = option.value;
                     opt.text = option.text + " " + translations[lang].monthsLabel.split(" ")[1];
                     monthsSelect.appendChild(opt);
                 });
-                if (bank === "tamkart" || bank === "leo" || bank === "bolkart") {
+            } else {
+                const bankOptions = [
+                    { value: "kapital", text: "Kapital" },
+                    { value: "tamkart", text: "TamKart" },
+                    { value: "leo", text: "Leo Bank" },
+                    { value: "bolkart", text: "Bolkart" },
+                    { value: "umumi", text: "Ümumi Bank" }
+                ];
+                bankOptions.forEach(option => {
                     const opt = document.createElement("option");
-                    opt.value = extraOption.value;
-                    opt.text = extraOption.text + " " + translations[lang].monthsLabel.split(" ")[1];
+                    opt.value = option.value;
+                    opt.text = option.text;
+                    bankSelect.appendChild(opt);
+                });
+
+                if (bankSelect.value === "umumi") {
+                    const opt = document.createElement("option");
+                    opt.value = "full";
+                    opt.text = translations[lang].paymentPlanHeaders[0];
                     monthsSelect.appendChild(opt);
+                } else {
+                    const baseOptions = [
+                        { value: "3", text: "3" },
+                        { value: "6", text: "6" },
+                        { value: "9", text: "9" },
+                        { value: "12", text: "12" },
+                        { value: "18", text: "18" }
+                    ];
+                    const extraOption = { value: "24", text: "24" };
+                    baseOptions.forEach(option => {
+                        const opt = document.createElement("option");
+                        opt.value = option.value;
+                        opt.text = option.text + " " + translations[lang].monthsLabel.split(" ")[1];
+                        monthsSelect.appendChild(opt);
+                    });
+                    if (bankSelect.value === "tamkart" || bankSelect.value === "leo" || bankSelect.value === "bolkart") {
+                        const opt = document.createElement("option");
+                        opt.value = extraOption.value;
+                        opt.text = extraOption.text + " " + translations[lang].monthsLabel.split(" ")[1];
+                        monthsSelect.appendChild(opt);
+                    }
                 }
             }
         }
@@ -400,7 +450,19 @@
                 "umumi": { "full": 0 }
             };
 
-            let rate = seller === "birmarket" ? birmarketRates[bank][months] : defaultRates[bank][months];
+            const bankRates = {
+                "resmi": { "2": 0.031, "3": 0.042, "6": 0.074, "12": 0.128, "18": 0.188, "24": 0.247, "35": 0.31 },
+                "qeyri-resmi": { "2": 0.036, "3": 0.048, "6": 0.082, "12": 0.147, "18": 0.206, "24": 0.26, "35": 0.354 }
+            };
+
+            let rate;
+            if (seller === "bank") {
+                rate = bankRates[bank][months];
+            } else if (seller === "birmarket") {
+                rate = birmarketRates[bank][months];
+            } else {
+                rate = defaultRates[bank][months];
+            }
 
             if (bank === "umumi") {
                 if (amount <= 500) rate = 0.12;
@@ -417,7 +479,7 @@
                     "bolkart": { "3": 0.07, "6": 0.12, "9": 0.14, "12": 0.15, "18": 0.20, "24": 0.23 }
                 };
                 rate = xRates[bank][months];
-            } else if (seller !== "birmarket") {
+            } else if (seller !== "birmarket" && seller !== "bank") {
                 if (seller === "chinara") {
                     rate += 0.02;
                 }
@@ -448,20 +510,19 @@
             const cardFront = document.getElementById(`creditCard${section}`).querySelector('.card-front');
             const cardBack = document.getElementById(`creditCard${section}`).querySelector('.card-back');
 
-            // Daxiletmələri təmizlə
             document.getElementById(`amount${section}`).classList.remove('invalid-input');
             document.getElementById(`initialPayment${section}`).classList.remove('invalid-input');
 
-            // Kartın rəngini dəyişdir
+            cardFront.classList.remove('birmarket', 'bank');
+            cardBack.classList.remove('birmarket', 'bank');
             if (seller === "birmarket") {
                 cardFront.classList.add('birmarket');
                 cardBack.classList.add('birmarket');
-            } else {
-                cardFront.classList.remove('birmarket');
-                cardBack.classList.remove('birmarket');
+            } else if (seller === "bank") {
+                cardFront.classList.add('bank');
+                cardBack.classList.add('bank');
             }
 
-            // Daxiletmələrin etibarlılığını yoxla
             if (!amountInput || !initialPaymentInput || amount < 100 || amount > 10000 || initialPayment > amount) {
                 document.getElementById(`amount${section}`).classList.add('invalid-input');
                 document.getElementById(`initialPayment${section}`).classList.add('invalid-input');
@@ -478,7 +539,7 @@
             }
 
             const remainingAmount = amount - initialPayment;
-            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : seller === "birmarket" ? 20 : 30);
+            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : seller === "birmarket" ? 20 : seller === "bank" ? 0 : 30);
             const amountWithFee = remainingAmount + serviceFee;
             const interestRate = getInterestRate(bank, months, seller, amount);
             const totalInterest = amountWithFee * interestRate;
@@ -561,10 +622,10 @@
             }
 
             const remainingAmount = amount - initialPayment;
-            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : seller === "birmarket" ? 20 : 30);
+            const serviceFee = seller === "x" ? 0 : (seller === "chinara" ? 50 : seller === "birmarket" ? 20 : seller === "bank" ? 0 : 30);
             const amountWithFee = remainingAmount + serviceFee;
 
-            const banks = ["kapital", "tamkart", "leo", "bolkart", "umumi"];
+            const banks = seller === "bank" ? ["resmi", "qeyri-resmi"] : ["kapital", "tamkart", "leo", "bolkart", "umumi"];
             const monthlyPayments = [];
             const totalAmounts = [];
 
