@@ -357,6 +357,40 @@
             }
         }
 
+        function updateMonths(section) {
+            const bankSelect = document.getElementById(`bank${section}`);
+            const seller = document.getElementById(`seller${section}`).value;
+            const monthsSelect = document.getElementById(`months${section}`);
+            const lang = document.getElementById("language").value;
+            const currentBank = bankSelect.value || "tamkart";
+
+            monthsSelect.innerHTML = "";
+            bankSelect.innerHTML = "";
+            const fragment = document.createDocumentFragment();
+
+            if (seller === "bank") {
+                const bankOptions = [
+                    { value: "resmi", text: translations[lang].bankLabel.split(":")[0] + " (Rəsmi)" },
+                    { value: "qeyri-resmi", text: translations[lang].bankLabel.split(":")[0] + " (Qeyri-rəsmi)" }
+                ];
+                bankOptions.forEach(option => {
+                    const opt = document.createElement("option");
+                    opt.value = option.value;
+                    opt.text = option.text;
+                    if (option.value === currentBank) opt.selected = true;
+                    fragment.appendChild(opt);
+                });
+                bankSelect.appendChild(fragment);
+
+                const monthOptions = [
+                    { value: "2", text: "2" },
+                    { value: "3", text: "3" },
+                    { value: "6", text: "6" },
+                    { value: "12", text: "12" },
+                    { value: "18", text: "18" },
+                    { value: "24", text: "24" },
+                    { value: "35", text: "35" }
+                ];
                 monthOptions.forEach(option => {
                     const opt = document.createElement("option");
                     opt.value = option.value;
